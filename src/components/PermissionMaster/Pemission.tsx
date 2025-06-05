@@ -131,42 +131,17 @@ const PermissionsMatrix = (): JSX.Element => {
         prevData.map(item => {
           const updatedPermissions = { ...item.permissions };
 
-          // Set rights to true if selected, false if not selected
+          // For each possible right, set true if selected, false if not
           (Object.keys(updatedPermissions) as PermissionKey[]).forEach(key => {
             updatedPermissions[key] = selectedKeys.includes(key);
           });
 
-          return {
-            ...item,
-            permissions: updatedPermissions
-          };
+          return { ...item, permissions: updatedPermissions };
         })
       );
     },
     []
   );
-
-  // const handleRightsChange = useCallback(
-  //   (selectedOptions: readonly RightOption[] | null) => {
-  //     const selected = selectedOptions ? [...selectedOptions] : [];
-  //     setSelectedRights(selected);
-
-  //     const selectedKeys = selected.map(option => option.value);
-
-  //     setData(prevData =>
-  //       prevData.map(item => {
-  //         const updatedPermissions = { ...item.permissions };
-
-  //         selectedKeys.forEach(key => {
-  //           updatedPermissions[key] = true;
-  //         });
-
-  //         return { ...item, permissions: updatedPermissions };
-  //       })
-  //     );
-  //   },
-  //   []
-  // );
 
   const handleSave = async () => {
     try {
@@ -218,6 +193,15 @@ const PermissionsMatrix = (): JSX.Element => {
     columns,
     getCoreRowModel: getCoreRowModel()
   });
+
+  useEffect(() => {
+    // If all rows have a right enabled, include it in selectedRights
+    const newSelectedRights: RightOption[] = rightsOptions.filter(
+      option =>
+        data.length > 0 && data.every(item => item.permissions[option.value])
+    );
+    setSelectedRights(newSelectedRights);
+  }, [data]);
 
   if (loading || panelLoading) {
     return <div>Loading permissions...</div>;
