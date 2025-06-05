@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PageBreadcrumb from 'globals/components/common/PageBreadcrumb';
@@ -17,6 +18,11 @@ import {
   PannelUser
 } from 'globals/store/Service/panelUserService';
 import { updateUserManager } from 'globals/store/slice/pannel/updatepaneluserslice';
+import { getPermissionByMenuId } from 'globals/store/hooks/FuncMenuPermision';
+
+const createPermission = getPermissionByMenuId(7);
+const ShowCreate: React.CSSProperties['visibility'] =
+  createPermission && createPermission.bitCreate === 1 ? 'visible' : 'hidden';
 
 const PannelMaster = () => {
   console.log('rushil 1');

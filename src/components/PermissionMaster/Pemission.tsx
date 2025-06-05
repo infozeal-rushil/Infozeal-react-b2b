@@ -32,7 +32,7 @@ const PermissionsMatrix = (): JSX.Element => {
   const [data, setData] = useState<PermissionObject[]>([]);
   const [selectedRole, setSelectedRole] = useState<string>('');
   const [selectedRights, setSelectedRights] = useState<RightOption[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [permissionsLoading, setPermissionsLoading] = useState(false);
 
   const dispatch = useAppDispatch();
 
@@ -46,10 +46,12 @@ const PermissionsMatrix = (): JSX.Element => {
     success: updateSuccess
   } = useAppSelector(state => state.updatePermissions);
 
+  // Fetch all users on mount
   useEffect(() => {
     dispatch(funcgetPanelMenuPermMasterbyid());
   }, [dispatch]);
 
+  // Set initial selected user
   useEffect(() => {
     if (panelUsers.length > 0 && !selectedRole) {
       setSelectedRole(panelUsers[0].intPannelUserID.toString());
@@ -61,11 +63,12 @@ const PermissionsMatrix = (): JSX.Element => {
     value: user.intPannelUserID.toString()
   }));
 
+  // Fetch permissions when selected user changes
   useEffect(() => {
     const fetchPermissions = async () => {
       if (!selectedRole) return;
 
-      setLoading(true);
+      setPermissionsLoading(true);
       try {
         const selectedUserId = parseInt(selectedRole, 10);
         if (isNaN(selectedUserId)) {
@@ -74,7 +77,6 @@ const PermissionsMatrix = (): JSX.Element => {
         }
 
         const panelPermissions = await getPermissionslist(selectedUserId);
-        console.log('Raw API response:', panelPermissions);
         const transformedPermissions = panelPermissions.map(panel => ({
           objectName: panel.strPanelMenuName,
           permissions: {
@@ -93,7 +95,7 @@ const PermissionsMatrix = (): JSX.Element => {
       } catch (error) {
         console.error('Error fetching permissions:', error);
       } finally {
-        setLoading(false);
+        setPermissionsLoading(false);
       }
     };
 
@@ -120,6 +122,7 @@ const PermissionsMatrix = (): JSX.Element => {
       })
     );
   };
+
   const handleRightsChange = useCallback(
     (selectedOptions: readonly RightOption[] | null) => {
       const selected = selectedOptions ? [...selectedOptions] : [];
@@ -130,18 +133,21 @@ const PermissionsMatrix = (): JSX.Element => {
       setData(prevData =>
         prevData.map(item => {
           const updatedPermissions = { ...item.permissions };
-
-          // For each possible right, set true if selected, false if not
           (Object.keys(updatedPermissions) as PermissionKey[]).forEach(key => {
             updatedPermissions[key] = selectedKeys.includes(key);
           });
-
           return { ...item, permissions: updatedPermissions };
         })
       );
     },
     []
   );
+
+  const handleRoleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    e.preventDefault(); // Prevent default form behavior
+    setSelectedRole(e.target.value);
+    setSelectedRights([]); // Reset selected rights when user changes
+  };
 
   const handleSave = async () => {
     try {
@@ -169,9 +175,25 @@ const PermissionsMatrix = (): JSX.Element => {
       }));
 
       await dispatch(funcUpdatePanelMenuPermMaster(payload)).unwrap();
-
-      dispatch(funcgetPanelMenuPermMasterbyid()); // Refresh
       console.log('Permissions updated successfully', payload);
+
+      // Refresh permissions for the current user
+      const selectedUserId = parseInt(selectedRole, 10);
+      const panelPermissions = await getPermissionslist(selectedUserId);
+      const transformedPermissions = panelPermissions.map(panel => ({
+        objectName: panel.strPanelMenuName,
+        permissions: {
+          Add: panel.bitCreate === 1,
+          Edit: panel.bitUpdate === 1,
+          Delete: panel.bitDelete === 1,
+          Print: panel.bitPrint === 1,
+          View: panel.bitRead === 1,
+          Execute: panel.bitPanelPermMenuStatus ?? false
+        },
+        bitPanelPermMenuStatus: panel.bitPanelPermMenuStatus ?? false,
+        intPanelMenuID: panel.intPanelMenuID
+      }));
+      setData(transformedPermissions);
     } catch (error) {
       console.error('Failed to save permissions:', error);
     }
@@ -187,6 +209,16 @@ const PermissionsMatrix = (): JSX.Element => {
     }
   }, [updateSuccess, updateError, dispatch]);
 
+  // Update selected rights when data changes
+  useEffect(() => {
+    if (data.length > 0) {
+      const newSelectedRights = rightsOptions.filter(option =>
+        data.every(item => item.permissions[option.value])
+      );
+      setSelectedRights(newSelectedRights);
+    }
+  }, [data]);
+
   const columns = permissionTableColumns(togglePermission);
   const table = useReactTable({
     data,
@@ -194,20 +226,15 @@ const PermissionsMatrix = (): JSX.Element => {
     getCoreRowModel: getCoreRowModel()
   });
 
-  useEffect(() => {
-    // If all rows have a right enabled, include it in selectedRights
-    const newSelectedRights: RightOption[] = rightsOptions.filter(
-      option =>
-        data.length > 0 && data.every(item => item.permissions[option.value])
-    );
-    setSelectedRights(newSelectedRights);
-  }, [data]);
+  if (panelLoading) {
+    return <div>Loading users...</div>;
+  }
 
-  if (loading || panelLoading) {
+  if (permissionsLoading) {
     return <div>Loading permissions...</div>;
   }
 
-  if (!data.length) {
+  if (!data.length && !permissionsLoading) {
     return <div>No permissions data available</div>;
   }
 
@@ -218,7 +245,7 @@ const PermissionsMatrix = (): JSX.Element => {
         <button
           className="btn btn-primary"
           onClick={handleSave}
-          disabled={updateLoading}
+          disabled={updateLoading || permissionsLoading}
         >
           {updateLoading ? (
             <>
@@ -240,7 +267,7 @@ const PermissionsMatrix = (): JSX.Element => {
           <Form.Label>User</Form.Label>
           <Form.Select
             value={selectedRole}
-            onChange={e => setSelectedRole(e.target.value)}
+            onChange={handleRoleChange}
             style={{ minWidth: '180px' }}
           >
             {roleOptions.map(role => (

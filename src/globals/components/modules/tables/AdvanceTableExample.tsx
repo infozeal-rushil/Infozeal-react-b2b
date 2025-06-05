@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ColumnDef, Row } from '@tanstack/react-table';
 import AdvanceTable from 'globals/components/base/AdvanceTable';
 import AdvanceTableFooter from 'globals/components/base/AdvanceTableFooter';
@@ -23,6 +25,7 @@ import {
 } from 'components/PermissionMaster/PermissionKey';
 import { Form } from 'react-bootstrap';
 import { PannelUser } from 'globals/store/Service/panelUserService';
+import { getPermissionByMenuId } from 'globals/store/hooks/FuncMenuPermision';
 
 const basicImportString = `
 import { ColumnDef } from '@tanstack/react-table';
@@ -631,7 +634,7 @@ const FilterByColumnExample = () => {
   const tabItems: FilterTabItem[] = useMemo(() => {
     const getDataCount = (label: string) =>
       getPrePaginationRowModel().rows.filter(
-        ({ original: { status } }: any) => status.label === label
+        ({ original: { status } }: Row<Project>) => status.label === label
       ).length;
 
     return [
@@ -1120,6 +1123,17 @@ const SearchExample = () => {
     </AdvanceTableProvider>
   );
 };
+// let permisiondata = null;
+
+// try {
+//   const rawData = localStorage.getItem('panelMenuPermissions');
+//   permisiondata = rawData ? JSON.parse(rawData) : null;
+// } catch (error) {
+//   console.error('Error parsing panelMenuPermissions:', error);
+// }
+
+// const ShowDelete = permisiondata?.[6].bitDelete === 1 ? 'visible' : 'hidden';
+// const ShowUpdate = permisiondata?.[6].bitUpdate === 1 ? 'visible' : 'hidden';
 let permisiondata = null;
 
 try {
@@ -1129,8 +1143,12 @@ try {
   console.error('Error parsing panelMenuPermissions:', error);
 }
 
-const ShowDelete = permisiondata?.[6].bitDelete === 1 ? 'visible' : 'hidden';
-const ShowUpdate = permisiondata?.[6].bitUpdate === 1 ? 'visible' : 'hidden';
+const pagePermission = getPermissionByMenuId(7);
+
+const ShowDelete: React.CSSProperties['visibility'] =
+  pagePermission && pagePermission.bitDelete === 1 ? 'visible' : 'hidden';
+const ShowUpdate: React.CSSProperties['visibility'] =
+  pagePermission && pagePermission.bitUpdate === 1 ? 'visible' : 'hidden';
 
 export const pannelMasterColumns = (
   handleEdit: (user: PannelUser) => void,
