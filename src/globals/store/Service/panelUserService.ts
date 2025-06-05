@@ -1,13 +1,6 @@
-// globals/store/Service/panelUserService.ts
 /* eslint-disable */
 import { get, post, put, del } from 'globals/Axois/panel/panelAxois';
 import { ApiResponse } from '../apiResponseType';
-
-// export interface CreateUserResponse {
-//   status: string;
-//   responseMessage: string;
-//   data: number;
-// }
 
 export const createUserManager = async (userData: {
   UserDisplayName: string;
@@ -26,12 +19,6 @@ export const createUserManager = async (userData: {
     );
   }
 };
-
-// export interface DeleteUserResponse {
-//   status: string;
-//   responseMessage: string;
-//   entityID: number;
-// }
 
 export const deleteUserManager = async (
   userId: string

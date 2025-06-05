@@ -123,7 +123,7 @@ export async function buildDynamicRoutes(): Promise<RouteItems[]> {
       throw new Error('Authentication required to load routes');
     }
 
-    const apiData = await fetchMenuWithToken(Number(userId), token);
+    const apiData = await fetchMenuWithToken(Number(userId));
 
     const dynamicRoutes = await transformApiResponseToRoutes(apiData);
     routes = dynamicRoutes;

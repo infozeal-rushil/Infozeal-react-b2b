@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { data } from 'components/PermissionMaster/PermissionKey';
 import { getPermissionslist } from 'globals/store/Service/menupermisionservice';
@@ -19,7 +20,7 @@ export const fetchPermissions = createAsyncThunk(
   async (pannelUserId: number, { rejectWithValue }) => {
     try {
       const data = await getPermissionslist(pannelUserId);
-      return data; // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return data;
     } catch (error: any) {
       return rejectWithValue(error.message);
     }

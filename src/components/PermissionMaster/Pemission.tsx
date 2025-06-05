@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable */
 import { useState, useEffect, useCallback } from 'react';
 import {
   useReactTable,
@@ -74,6 +74,7 @@ const PermissionsMatrix = (): JSX.Element => {
         }
 
         const panelPermissions = await getPermissionslist(selectedUserId);
+        console.log('Raw API response:', panelPermissions);
         const transformedPermissions = panelPermissions.map(panel => ({
           objectName: panel.strPanelMenuName,
           permissions: {
@@ -82,9 +83,9 @@ const PermissionsMatrix = (): JSX.Element => {
             Delete: panel.bitDelete === 1,
             Print: panel.bitPrint === 1,
             View: panel.bitRead === 1,
-            Execute: panel.bitPanelMenuStatus
+            Execute: panel.bitPanelPermMenuStatus ?? false
           },
-          bitPanelMenuStatus: panel.bitPanelMenuStatus,
+          bitPanelPermMenuStatus: panel.bitPanelPermMenuStatus ?? false,
           intPanelMenuID: panel.intPanelMenuID
         }));
 
@@ -101,14 +102,14 @@ const PermissionsMatrix = (): JSX.Element => {
 
   const togglePermission = (
     rowIndex: number,
-    key: PermissionKey | 'bitPanelMenuStatus'
+    key: PermissionKey | 'bitPanelPermMenuStatus'
   ) => {
     setData(prev =>
       prev.map((item, index) => {
         if (index !== rowIndex) return item;
 
         const updatedPermissions = { ...item.permissions };
-        if (key !== 'bitPanelMenuStatus') {
+        if (key !== 'bitPanelPermMenuStatus') {
           updatedPermissions[key] = !updatedPermissions[key];
         }
 
@@ -119,7 +120,6 @@ const PermissionsMatrix = (): JSX.Element => {
       })
     );
   };
-
   const handleRightsChange = useCallback(
     (selectedOptions: readonly RightOption[] | null) => {
       const selected = selectedOptions ? [...selectedOptions] : [];
@@ -131,16 +131,42 @@ const PermissionsMatrix = (): JSX.Element => {
         prevData.map(item => {
           const updatedPermissions = { ...item.permissions };
 
-          selectedKeys.forEach(key => {
-            updatedPermissions[key] = true;
+          // Set rights to true if selected, false if not selected
+          (Object.keys(updatedPermissions) as PermissionKey[]).forEach(key => {
+            updatedPermissions[key] = selectedKeys.includes(key);
           });
 
-          return { ...item, permissions: updatedPermissions };
+          return {
+            ...item,
+            permissions: updatedPermissions
+          };
         })
       );
     },
     []
   );
+
+  // const handleRightsChange = useCallback(
+  //   (selectedOptions: readonly RightOption[] | null) => {
+  //     const selected = selectedOptions ? [...selectedOptions] : [];
+  //     setSelectedRights(selected);
+
+  //     const selectedKeys = selected.map(option => option.value);
+
+  //     setData(prevData =>
+  //       prevData.map(item => {
+  //         const updatedPermissions = { ...item.permissions };
+
+  //         selectedKeys.forEach(key => {
+  //           updatedPermissions[key] = true;
+  //         });
+
+  //         return { ...item, permissions: updatedPermissions };
+  //       })
+  //     );
+  //   },
+  //   []
+  // );
 
   const handleSave = async () => {
     try {
@@ -162,7 +188,7 @@ const PermissionsMatrix = (): JSX.Element => {
         bitDelete: item.permissions.Delete ? 1 : 0,
         bitPrint: item.permissions.Print ? 1 : 0,
         bitRead: item.permissions.View ? 1 : 0,
-        bitPanelMenuStatus: item.permissions.Execute ?? false,
+        bitPanelPermMenuStatus: item.permissions.Execute ?? false,
         strPannelUserDisplayName: selectedUser.strPannelUserDisplayName,
         bitPannelUserStatus: selectedUser.bitPannelUserStatus
       }));

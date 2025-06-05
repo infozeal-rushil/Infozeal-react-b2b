@@ -10,7 +10,7 @@ export type PermissionKey =
 export interface PermissionObject {
   objectName: string;
   permissions: Record<PermissionKey, boolean>;
-  bitPanelMenuStatus: boolean;
+  bitPanelPermMenuStatus: boolean;
   intPanelMenuID: number;
 }
 
@@ -26,7 +26,6 @@ export interface data {
   bitUpdate: number;
   bitDelete: number;
   bitPrint: number;
-  bitPanelMenuStatus: boolean;
 }
 
 export const transformPanelToPermission = (
@@ -40,9 +39,9 @@ export const transformPanelToPermission = (
       Delete: panel.bitDelete === 1,
       Print: panel.bitPrint === 1,
       View: panel.bitRead === 1,
-      Execute: panel.bitPanelMenuStatus
+      Execute: panel.bitPanelPermMenuStatus ?? false
     },
-    bitPanelMenuStatus: panel.bitPanelMenuStatus,
+    bitPanelPermMenuStatus: panel.bitPanelPermMenuStatus ?? false,
     intPanelMenuID: panel.intPanelMenuID
   }));
 };

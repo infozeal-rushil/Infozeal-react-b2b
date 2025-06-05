@@ -19,18 +19,13 @@ interface PanelMenuPermissions {
 }
 
 export async function fetchMenuWithToken(
-  userId: number,
-  token: string
+  userId: number
 ): Promise<ApiMenuResponse> {
   try {
     const response = await axiosInstance.get(
       `/PanelMenuPerm/getPanelMenuPermMasterforlogin`,
       {
-        params: { PannelUserID: userId },
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Cache-Control': 'no-cache'
-        }
+        params: { PannelUserID: userId }
       }
     );
 
