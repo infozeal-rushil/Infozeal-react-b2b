@@ -12,6 +12,7 @@ export const funcgetPanelMenuPermMasterforlogin = createAsyncThunk(
   async ({ userId }, { rejectWithValue }) => {
     try {
       const data = await getPanelMenuPermMasterforlogin(userId);
+      localStorage.setItem('panelMenuData', JSON.stringify(data));
       return data;
     } catch (error) {
       return rejectWithValue(error.message);

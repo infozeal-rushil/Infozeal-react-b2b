@@ -1,29 +1,18 @@
-import axiosInstance from '@src/Axois';
-export const GetPannelUserLogin = async (UserEmail, UserPassword) => {
-  const VITE_BASE_URL = import.meta.env.VITE_BASE_URL;
+import { post } from '@src/Axois';
 
+export const GetPannelUserLogin = async (UserEmail, UserPassword) => {
   try {
-    const response = await axiosInstance.post('/login/GetPannelUserLogin', {
+    const data = await post('/login/GetPannelUserLogin', {
       UserEmail,
       UserPassword
     });
-
-    const responseData = response.data;
-
-    if (
-      responseData.status !== 'success' ||
-      !responseData.data ||
-      responseData.data.length === 0
-    ) {
-      throw new Error(
-        responseData.responseMessage || 'Invalid login credentials'
-      );
+    if (data.status !== 'success' || !data.data || data.data.length === 0) {
+      throw new Error(data.responseMessage || 'Invalid login credentials');
     }
-
-    return responseData.data[0];
+    return data.data[0];
   } catch (error) {
-    const message =
-      error?.response?.data?.responseMessage || error.message || 'Login failed';
-    throw new Error(message);
+    throw new Error(
+      error?.response?.data?.responseMessage || error.message || 'Login failed'
+    );
   }
 };

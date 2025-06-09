@@ -128,7 +128,9 @@ const ClientCompanyMaster = () => {
                   <Tab.Pane eventKey={2}>
                     <WizardForm step={2}>
                       {/* --- D.B. Configuration Section --- */}
-                      <h4 className="mt-6 mb-3">D.B. Configuration</h4>
+                      <h4 className="mt-6 mb-3">
+                        DataBase Configuration Information
+                      </h4>
                       <Row className="g-3">
                         <Col md={6}>
                           <FloatingLabel controlId="dbSrNo" label="Sr. No">
@@ -179,7 +181,7 @@ const ClientCompanyMaster = () => {
                   </Tab.Pane>
                   <Tab.Pane eventKey={3}>
                     <WizardForm step={3}>
-                      <h4 className="mt-6 mb-3">User</h4>
+                      <h4 className="mt-6 mb-3">User details</h4>
                       <Row className="g-3">
                         <Col md={6}>
                           <FloatingLabel controlId="userName" label="Name">

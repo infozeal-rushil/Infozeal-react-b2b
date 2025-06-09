@@ -2,10 +2,11 @@
 import { UilChartPie } from '@iconscout/react-unicons';
 import { staticRoutes } from '@src/sitemap';
 import * as Unicons from '@iconscout/react-unicons';
-import { getPanelMenuPermMasterforlogin } from '@globals/g-store/Service/getmenupermisiondataService'; // Use service, not thunk
-const getIconByName = name => {
+import { funcgetPanelMenuPermMasterforlogin } from '@globals/g-store/slice/getmenupermisiondataslice';
+import { store } from '@globals/g-store/Index';
+function getIconByName(name) {
   return Unicons[name] || Unicons.UilFile;
-};
+}
 function buildRouteItem(item) {
   var _a;
   return {
@@ -90,7 +91,10 @@ export async function buildDynamicRoutes() {
       routes = [];
       throw new Error('Authentication required to load routes');
     }
-    const apiData = await getPanelMenuPermMasterforlogin(Number(userId));
+    // Dispatch the thunk and unwrap the result
+    const apiData = await store
+      .dispatch(funcgetPanelMenuPermMasterforlogin({ userId: Number(userId) }))
+      .unwrap();
     const dynamicRoutes = await transformApiResponseToRoutes(apiData);
     routes = dynamicRoutes;
     return dynamicRoutes;

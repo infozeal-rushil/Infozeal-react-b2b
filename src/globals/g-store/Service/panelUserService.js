@@ -33,6 +33,7 @@ export const GetPannelUserMasterList = async (
   filterStatusActive = '',
   shortByCol = ''
 ) => {
+  console.log('Service params:', { pageNo, rowsPerPage, searchTerm });
   return await get('/login/GetPannelUserMasterList', {
     PageNo: pageNo,
     RowsPerPage: rowsPerPage,

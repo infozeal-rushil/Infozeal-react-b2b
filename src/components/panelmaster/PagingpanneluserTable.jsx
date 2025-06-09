@@ -5,36 +5,40 @@ import {
   getPaginationRowModel,
   flexRender
 } from '@tanstack/react-table';
-import { GetPannelUserMasterList } from '@globals/g-store/Service/panelUserService';
+import { useDispatch } from 'react-redux';
+import { funcGetPannelUserMasterList } from '@globals/g-store/slice/panelUserSlice';
+
 const PannelUserTable = () => {
+  const dispatch = useDispatch();
   const [data, setData] = useState([]);
-  const [pageIndex, setPageIndex] = useState(0); // 0-based index for React Table
+  const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
-  const fetchUsers = () => {
-    console.log('rushil fetchuser');
+
+  const fetchUsers = async () => {
     setLoading(true);
     try {
-      const res = GetPannelUserMasterList(pageIndex + 1, pageSize); // your API uses 1-based pageNo
+      const res = await dispatch(
+        funcGetPannelUserMasterList({
+          pageNo: pageIndex + 1,
+          rowsPerPage: pageSize
+        })
+      ).unwrap();
+      console.log('Rushil page no:', pageIndex + 1);
       setData(res.data.PannelUser);
-      console.log(res.data.PannelUser);
       setTotalCount(res.data.TotalRecords);
-      console.log(res.data.TotalRecords);
     } catch (err) {
       console.error('Failed to fetch users:', err);
     } finally {
       setLoading(false);
     }
   };
+
   useEffect(() => {
-    console.log('[Debug] fetchUsers Pagination User Table');
     fetchUsers();
   }, [pageIndex, pageSize]);
-  useEffect(() => {
-    console.log('[Debug] fetchUsers first mount');
-    fetchUsers();
-  }, []);
+
   const columns = [
     { header: 'ID', accessorKey: 'intPannelUserID' },
     { header: 'Name', accessorKey: 'strPannelUserDisplayName' },
@@ -138,4 +142,5 @@ const PannelUserTable = () => {
     </div>
   );
 };
+
 export default PannelUserTable;

@@ -43,6 +43,7 @@ const AdvanceTableFooter = ({
       maxPaginationButtonCount: 5
     });
   const [isAllVisible, setIsAllVisible] = useState(false);
+  console.log('Calling API with pageNo:', pageIndex + 1);
   return (
     <Row className={classNames(className, 'align-items-center py-1')}>
       <Col className="d-flex fs-9">
@@ -149,10 +150,8 @@ const AdvanceTableFooter = ({
                 key={page}
                 active={pageIndex === page - 1}
                 onClick={() => {
-                  setPageIndex(page - 1); // ✅ Convert to 0-based
-                  onPageChange === null || onPageChange === void 0
-                    ? void 0
-                    : onPageChange(page); // Optional external callback (1-based)
+                  setPageIndex(page - 1); // 0-based
+                  onPageChange && onPageChange(page); // 1-based
                 }}
               >
                 {page}

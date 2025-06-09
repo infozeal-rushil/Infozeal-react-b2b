@@ -38,7 +38,7 @@ const PannelMaster = () => {
   let ShowCreate =
     pagePermission && pagePermission.bitCreate === 1 ? 'visible' : 'hidden';
   useEffect(() => {
-    console.log('Fetching data with:', {
+    console.log('Rushil 2:', {
       page: pageIndex + 1,
       pageSize,
       searchTerm
@@ -120,6 +120,7 @@ const PannelMaster = () => {
     setPageIndex(0);
   };
   const handlePageChange = page => {
+    console.log('Page changed to Rushil 3:', page);
     setPageIndex(page - 1);
   };
   return (
