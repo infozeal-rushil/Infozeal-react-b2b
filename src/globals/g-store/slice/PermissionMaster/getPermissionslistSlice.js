@@ -12,9 +12,8 @@ export const funcGetPannelUserMasterall = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await GetPannelUserMasterall();
-      console.log('Fetched panel users:', response);
+
       if (response.status === 'success') {
-        console.log('Panel users data:', response.data);
         return response.data;
       } else {
         return rejectWithValue(response.responseMessage);

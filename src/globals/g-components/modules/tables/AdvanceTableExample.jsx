@@ -17,7 +17,7 @@ import { FaEdit, FaTrash } from 'react-icons/fa';
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Form } from 'react-bootstrap';
-import { getPermissionByMenuId } from '@globals/g-store/hooks/FuncMenuPermision';
+import { getPermissionByMenuPageName } from '@globals/g-store/hooks/FuncMenuPermision';
 const basicImportString = `
 import { ColumnDef } from '@tanstack/react-table';
 import AdvanceTable from 'components/base/AdvanceTable';
@@ -1099,7 +1099,10 @@ const SearchExample = () => {
 // } catch (error) {
 //   console.error('Error parsing panelMenuPermissions:', error);
 // }
-const pagePermission = getPermissionByMenuId(7);
+console.log('Calling getPermissionByMenuPageName with:', 'PannelUserMaster');
+const pagePermission = getPermissionByMenuPageName('PannelUserMaster');
+console.log('Permission fetched for PannelUserMaster:', pagePermission);
+
 const ShowDelete =
   pagePermission && pagePermission.bitDelete === 1 ? 'visible' : 'hidden';
 const ShowUpdate =

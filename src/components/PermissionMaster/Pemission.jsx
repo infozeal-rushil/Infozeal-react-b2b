@@ -157,9 +157,8 @@ const PermissionsMatrix = () => {
           bitPannelUserStatus: selectedUser.bitPannelUserStatus
         };
       });
-      console.log('Payload being sent:', payload);
+
       await dispatch(funcUpdatePanelMenuPermMaster(payload)).unwrap();
-      console.log('Permissions updated successfully', payload);
       // Refresh permissions for the current user
       const selectedUserId = parseInt(selectedRole, 10);
       const panelPermissions = await getPanelMenuPermMasterbyid(selectedUserId);
@@ -185,7 +184,6 @@ const PermissionsMatrix = () => {
   };
   useEffect(() => {
     if (updateSuccess) {
-      console.log('Permissions updated successfully');
       dispatch(resetUpdateStatus());
     }
     if (updateError) {
@@ -214,12 +212,6 @@ const PermissionsMatrix = () => {
     return <div>Loading permissions...</div>;
   }
   if (!data.length && !permissionsLoading) {
-    console.log('No permissions data available:', {
-      data,
-      permissionsLoading,
-      selectedRole,
-      panelUsers
-    });
     return <div>No permissions data available</div>;
   }
   return (

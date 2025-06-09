@@ -1,10 +1,10 @@
-export function getPermissionByMenuId(menuId) {
+export function getPermissionByMenuPageName(menuPageName) {
   try {
     const panelMenuDataRaw = localStorage.getItem('panelMenuData');
     if (!panelMenuDataRaw || panelMenuDataRaw === 'undefined') return null;
     const panelMenuData = JSON.parse(panelMenuDataRaw);
     const matchedMenu = panelMenuData.data.find(
-      item => item.intPanelMenuID === menuId
+      item => item.strMunuPage === menuPageName
     );
     if (!matchedMenu) return null;
     const {

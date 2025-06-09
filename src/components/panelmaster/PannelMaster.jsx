@@ -14,7 +14,7 @@ import DeleteUserModal from '@globals/g-components/modals/pannel-modals/DeleteUs
 import { usePannelUsers } from '@globals/g-store/hooks/UsePannelUsers';
 import { AddPannelUserMaster } from '@globals/g-store/Service/panelUserService';
 import { funcUpdatePannelUserMaster } from '@globals/g-store/slice/pannel/updatepaneluserslice';
-import { getPermissionByMenuId } from '@globals/g-store/hooks/FuncMenuPermision';
+import { getPermissionByMenuPageName } from '@globals/g-store/hooks/FuncMenuPermision';
 const PannelMaster = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [pageIndex, setPageIndex] = useState(0);
@@ -34,20 +34,12 @@ const PannelMaster = () => {
   // } catch (error) {
   //   console.error('Error parsing panelMenuPermissions:', error);
   // }
-  const pagePermission = getPermissionByMenuId(7);
+  const pagePermission = getPermissionByMenuPageName('PannelUserMaster');
   let ShowCreate =
     pagePermission && pagePermission.bitCreate === 1 ? 'visible' : 'hidden';
   useEffect(() => {
-    console.log('Rushil 2:', {
-      page: pageIndex + 1,
-      pageSize,
-      searchTerm
-    });
     refresh(pageIndex + 1, pageSize, searchTerm);
   }, [pageIndex, pageSize, searchTerm]);
-  useEffect(() => {
-    console.log('Fetched users:', users);
-  }, [users]);
   const handleAddUser = useCallback(() => {
     setModalMode('add');
     setSelectedUser(null);
@@ -76,7 +68,7 @@ const PannelMaster = () => {
           UserPassword: userData.strPannelUserPassword || '',
           UserStatus: userData.bitPannelUserStatus || true
         });
-        console.log('User created successfully:', response);
+
         refresh(pageIndex + 1, pageSize, searchTerm);
         toast.success('User created successfully');
       } else if (modalMode === 'edit' && selectedUser) {
@@ -86,7 +78,7 @@ const PannelMaster = () => {
           UserEmail: userData.strPannelUserEmail || '',
           UserStatus: userData.bitPannelUserStatus || false
         });
-        console.log('User updated successfully:', response);
+
         refresh(pageIndex + 1, pageSize, searchTerm);
         toast.success('User updated successfully');
       }
@@ -120,7 +112,6 @@ const PannelMaster = () => {
     setPageIndex(0);
   };
   const handlePageChange = page => {
-    console.log('Page changed to Rushil 3:', page);
     setPageIndex(page - 1);
   };
   return (

@@ -36,8 +36,6 @@ export const UpdatePanelMenuPermMaster = async payload => {
       '/PanelMenuPerm/UpdatePanelMenuPermMaster',
       payload
     );
-    console.log('Full API response:', response);
-    console.log('Response data:', response.data);
     return response.data;
   } catch (error) {
     console.error('Axios error:', error);

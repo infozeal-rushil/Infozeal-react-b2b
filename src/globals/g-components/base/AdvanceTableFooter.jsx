@@ -43,7 +43,7 @@ const AdvanceTableFooter = ({
       maxPaginationButtonCount: 5
     });
   const [isAllVisible, setIsAllVisible] = useState(false);
-  console.log('Calling API with pageNo:', pageIndex + 1);
+
   return (
     <Row className={classNames(className, 'align-items-center py-1')}>
       <Col className="d-flex fs-9">

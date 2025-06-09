@@ -9,7 +9,6 @@ const initialState = {
 export const funcGetPannelUserMasterList = createAsyncThunk(
   'pannelUsers/fetch',
   async (params, { rejectWithValue }) => {
-    console.log('Thunk params:', params);
     try {
       const response = await GetPannelUserMasterList(
         params.pageNo,

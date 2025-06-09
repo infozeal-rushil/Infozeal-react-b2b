@@ -25,7 +25,6 @@ const PannelUserTable = () => {
           rowsPerPage: pageSize
         })
       ).unwrap();
-      console.log('Rushil page no:', pageIndex + 1);
       setData(res.data.PannelUser);
       setTotalCount(res.data.TotalRecords);
     } catch (err) {

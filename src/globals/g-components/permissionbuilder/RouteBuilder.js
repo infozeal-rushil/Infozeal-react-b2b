@@ -72,7 +72,6 @@ export function transformApiResponseToRoutes(apiData) {
         pages: dashboardItems.map(item => buildRouteItem(item))
       }
     ];
-    console.log('Transformed routes:', transformedRoutes);
     return transformedRoutes;
   } catch (error) {
     console.error('Transformation error:', error);
