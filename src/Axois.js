@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-// globals/Axois/panel/panelAxois.ts
 const VITE_BASE_URL = import.meta.env.VITE_BASE_URL;
 const axiosInstance = axios.create({
   baseURL: VITE_BASE_URL,

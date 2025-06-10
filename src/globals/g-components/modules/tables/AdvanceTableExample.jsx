@@ -1099,9 +1099,8 @@ const SearchExample = () => {
 // } catch (error) {
 //   console.error('Error parsing panelMenuPermissions:', error);
 // }
-console.log('Calling getPermissionByMenuPageName with:', 'PannelUserMaster');
-const pagePermission = getPermissionByMenuPageName('PannelUserMaster');
-console.log('Permission fetched for PannelUserMaster:', pagePermission);
+
+const pagePermission = getPermissionByMenuPageName('panelusermaster');
 
 const ShowDelete =
   pagePermission && pagePermission.bitDelete === 1 ? 'visible' : 'hidden';

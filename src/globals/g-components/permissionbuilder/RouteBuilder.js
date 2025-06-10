@@ -52,11 +52,9 @@ function buildMenuHierarchy(items, parentId = 0, depth = 0) {
     // console.log(`Built menu item for ${item.strMunuPage}:`, menuItem);
     return menuItem;
   });
-  console.groupEnd();
   return result;
 }
 export function transformApiResponseToRoutes(apiData) {
-  console.group('Transforming API response to routes');
   try {
     if (!apiData.data) {
       console.error('MenuMaster is missing in API response');
@@ -81,7 +79,7 @@ export function transformApiResponseToRoutes(apiData) {
   }
 }
 export async function buildDynamicRoutes() {
-  console.group('Building dynamic routes');
+  // console.group('Building dynamic routes');
   try {
     const token = localStorage.getItem('authToken');
     const userId = localStorage.getItem('UserID');

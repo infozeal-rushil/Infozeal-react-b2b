@@ -3,10 +3,18 @@ export function getPermissionByMenuPageName(menuPageName) {
     const panelMenuDataRaw = localStorage.getItem('panelMenuData');
     if (!panelMenuDataRaw || panelMenuDataRaw === 'undefined') return null;
     const panelMenuData = JSON.parse(panelMenuDataRaw);
+
+    // Log all available menu pages for debugging
+    const availablePages = panelMenuData.data.map(item => item.strMunuPage);
+
+    // Case-insensitive match
     const matchedMenu = panelMenuData.data.find(
-      item => item.strMunuPage === menuPageName
+      item => item.strMunuPage?.toLowerCase() === menuPageName.toLowerCase()
     );
-    if (!matchedMenu) return null;
+    if (!matchedMenu) {
+      console.warn(`No permission found for menuPageName: ${menuPageName}`);
+      return null;
+    }
     const {
       bitCreate = 0,
       bitRead = 0,

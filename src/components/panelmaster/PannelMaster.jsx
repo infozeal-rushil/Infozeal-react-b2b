@@ -34,7 +34,7 @@ const PannelMaster = () => {
   // } catch (error) {
   //   console.error('Error parsing panelMenuPermissions:', error);
   // }
-  const pagePermission = getPermissionByMenuPageName('PannelUserMaster');
+  const pagePermission = getPermissionByMenuPageName('panelusermaster');
   let ShowCreate =
     pagePermission && pagePermission.bitCreate === 1 ? 'visible' : 'hidden';
   useEffect(() => {

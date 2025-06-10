@@ -16,8 +16,8 @@ import WizardSideNav from '@globals/g-components/wizard/WizardSideNav';
 
 const addCompanyWizardNav = [
   { eventKey: 1, label: 'Company Details' },
-  { eventKey: 2, label: 'D.B. Configration' },
-  { eventKey: 3, label: 'User Details' }
+  { eventKey: 2, label: 'User Details' }, // Swapped
+  { eventKey: 3, label: 'D.B. Configration' } // Swapped
 ];
 
 const clientCompanyDefaultFormData = {
@@ -89,19 +89,6 @@ const ClientCompanyMaster = () => {
                           </FloatingLabel>
                         </Col>
                         <Col md={6}>
-                          <FloatingLabel
-                            controlId="validityDate"
-                            label="Validity Date"
-                          >
-                            <Form.Control
-                              type="date"
-                              name="validityDate"
-                              placeholder="Validity Date"
-                              onChange={onChange}
-                            />
-                          </FloatingLabel>
-                        </Col>
-                        <Col md={6}>
                           <FloatingLabel controlId="mobileNo" label="Mobile No">
                             <Form.Control
                               type="text"
@@ -122,65 +109,59 @@ const ClientCompanyMaster = () => {
                           </FloatingLabel>
                         </Col>
                       </Row>
-                      {/* --- End Company Information Section --- */}
-                    </WizardForm>
-                  </Tab.Pane>
-                  <Tab.Pane eventKey={2}>
-                    <WizardForm step={2}>
-                      {/* --- D.B. Configuration Section --- */}
-                      <h4 className="mt-6 mb-3">
-                        DataBase Configuration Information
-                      </h4>
+                      <h4 className="mt-6 mb-3">Branch Details</h4>
                       <Row className="g-3">
                         <Col md={6}>
-                          <FloatingLabel controlId="dbSrNo" label="Sr. No">
+                          <FloatingLabel
+                            controlId="branchName"
+                            label="Branch Name"
+                          >
                             <Form.Control
                               type="text"
-                              name="dbSrNo"
-                              placeholder="Sr. No"
-                              onChange={onChange}
-                            />
-                          </FloatingLabel>
-                        </Col>
-                        <Col md={6}>
-                          <FloatingLabel controlId="dbIp" label="Ip">
-                            <Form.Control
-                              type="text"
-                              name="dbIp"
-                              placeholder="Ip"
-                              onChange={onChange}
-                            />
-                          </FloatingLabel>
-                        </Col>
-                        <Col md={6}>
-                          <FloatingLabel controlId="dbName" label="Name">
-                            <Form.Control
-                              type="text"
-                              name="dbName"
-                              placeholder="Name"
+                              name="branchName"
+                              placeholder="Branch Name"
                               onChange={onChange}
                             />
                           </FloatingLabel>
                         </Col>
                         <Col md={6}>
                           <FloatingLabel
-                            controlId="dbPassword"
-                            label="PassWord"
+                            controlId="branchType"
+                            label="Branch Type"
+                          >
+                            <Form.Select
+                              name="branchType"
+                              onChange={onChange}
+                              defaultValue=""
+                            >
+                              <option value="" disabled>
+                                Select Branch Type
+                              </option>
+                              <option value="B2B">B2B</option>
+                              <option value="B2C">B2C</option>
+                            </Form.Select>
+                          </FloatingLabel>
+                        </Col>
+                        <Col md={6}>
+                          <FloatingLabel
+                            controlId="validityDate"
+                            label="Validity Date"
                           >
                             <Form.Control
-                              type="password"
-                              name="dbPassword"
-                              placeholder="PassWord"
+                              type="date"
+                              name="validityDate"
+                              placeholder="Validity Date"
                               onChange={onChange}
                             />
                           </FloatingLabel>
                         </Col>
                       </Row>
-                      {/* --- End D.B. Configuration Section --- */}
+                      {/* --- End Company Information Section --- */}
                     </WizardForm>
                   </Tab.Pane>
-                  <Tab.Pane eventKey={3}>
-                    <WizardForm step={3}>
+                  <Tab.Pane eventKey={2}>
+                    <WizardForm step={2}>
+                      {/* --- User Details Section (was step 3) --- */}
                       <h4 className="mt-6 mb-3">User details</h4>
                       <Row className="g-3">
                         <Col md={6}>
@@ -235,6 +216,56 @@ const ClientCompanyMaster = () => {
                           </FloatingLabel>
                         </Col>
                       </Row>
+                      {/* --- End User Details Section --- */}
+                    </WizardForm>
+                  </Tab.Pane>
+                  <Tab.Pane eventKey={3}>
+                    <WizardForm step={3}>
+                      {/* --- D.B. Configuration Section --- */}
+                      <h4 className="mt-6 mb-3">
+                        DataBase Configuration Information
+                      </h4>
+                      <Row className="g-3">
+                        <Col md={6}>
+                          <FloatingLabel controlId="dbIp" label="Ip Address">
+                            <Form.Control
+                              type="text"
+                              name="dbIp"
+                              placeholder="Ip Address"
+                              onChange={onChange}
+                            />
+                          </FloatingLabel>
+                        </Col>
+                        <Col md={6}>
+                          <FloatingLabel
+                            controlId="dbPassword"
+                            label="Password"
+                          >
+                            <Form.Control
+                              type="password"
+                              name="dbPassword"
+                              placeholder="Password"
+                              onChange={onChange}
+                            />
+                          </FloatingLabel>
+                        </Col>
+                        <Col md={6}>
+                          <FloatingLabel controlId="dbActive" label="DB Active">
+                            <Form.Select
+                              name="dbActive"
+                              onChange={onChange}
+                              defaultValue=""
+                            >
+                              <option value="" disabled>
+                                Select Status
+                              </option>
+                              <option value="true">Active</option>
+                              <option value="false">Inactive</option>
+                            </Form.Select>
+                          </FloatingLabel>
+                        </Col>
+                      </Row>
+                      {/* --- End D.B. Configuration Section --- */}
                     </WizardForm>
                   </Tab.Pane>
                 </Tab.Content>
