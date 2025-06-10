@@ -24,16 +24,8 @@
     "@react-leaflet/core": "^2.1.0",
     "@reduxjs/toolkit": "^2.8.2",
     "@tanstack/react-table": "^8.20.5",
-    "@testing-library/jest-dom": "^6.1.4",
-    "@testing-library/react": "^14.0.0",
-    "@testing-library/user-event": "^14.5.1",
     "@tinymce/tinymce-react": "^4.3.0",
     "@turf/turf": "^6.5.0",
-    "@types/jest": "^29.5.7",
-    "@types/node": "^20.8.10",
-    "@types/react": "^18.0.28",
-    "@types/react-dom": "^18.0.10",
-    "@types/rtlcss": "^3.5.4",
     "@vitejs/plugin-react": "^4.3.4",
     "axios": "^1.9.0",
     "bootstrap": "^5.3.5",
@@ -80,7 +72,6 @@
     "uuid": "^11.0.4",
     "vite": "^6.2.5",
     "vite-plugin-checker": "^0.9.1",
-    "vite-tsconfig-paths": "^5.0.1",
     "web-vitals": "^3.5.0",
     "worker-loader": "^3.0.8"
   },
@@ -89,8 +80,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "eject": "react-scripts eject",
-    "lint": "eslint --ext .js,jsx,ts,tsx,json ./src",
-    "lint:fix": "eslint --fix 'src/**/*.{js,jsx,ts,tsx,json}'",
+    "lint": "eslint --ext .js,.jsx,json ./src",
+    "lint:fix": "eslint --fix 'src/**/*.{js,jsx,json}'",
     "format": "prettier --write 'src/**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc.js",
     "predeploy": "npm run build && cp ./dist/index.html ./dist/404.html",
     "predeploy:alt": "npm run build && cp ./dist/index.html ./dist/404.html",
@@ -111,17 +102,6 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "@types/fslightbox-react": "^1.7.3",
-    "@types/leaflet": "^1.9.3",
-    "@types/lodash.merge": "^4.6.7",
-    "@types/mapbox-gl": "^2.7.11",
-    "@types/packery": "^1.4.33",
-    "@types/react-flatpickr": "^3.8.8",
-    "@types/react-grid-layout": "^1.3.2",
-    "@types/react-responsive-masonry": "^2.1.0",
-    "@types/react-slick": "^0.23.10",
-    "@typescript-eslint/eslint-plugin": "^6.12.0",
-    "@typescript-eslint/parser": "^6.12.0",
     "archiver": "^6.0.1",
     "eslint": "^8.44.0",
     "eslint-config-prettier": "^9.0.0",
@@ -130,12 +110,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "glob": "^10.3.4",
     "prettier": "^3.0.3",
-    "sass": "^1.64.2",
-    "typescript": "^5.2.2"
+    "sass": "^1.64.2"
   },
-  "overrides": {
-    "react-scripts": {
-      "typescript": "^5"
-    }
-  }
+  "overrides": {}
 }
