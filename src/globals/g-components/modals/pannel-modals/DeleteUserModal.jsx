@@ -1,13 +1,19 @@
 import { Modal, Button } from 'react-bootstrap';
 import { useState } from 'react';
-import { DeletePannelUserMaster } from '@globals/g-store/Service/panelUserService';
+import { useDispatch } from 'react-redux';
+import { funcDeletePannelUserMaster } from '@globals/g-store/slice/pannel/deletepaneluserslice';
+
 const DeleteUserModal = ({ show, onHide, user, onDeleteSuccess }) => {
   const [isDeleting, setIsDeleting] = useState(false);
+  const dispatch = useDispatch();
+
   const handleDelete = async () => {
     if (!user) return;
     setIsDeleting(true);
     try {
-      await DeletePannelUserMaster(user.intPannelUserID.toString());
+      await dispatch(
+        funcDeletePannelUserMaster(user.intPannelUserID.toString())
+      ).unwrap();
       onDeleteSuccess();
       onHide();
     } catch (error) {
@@ -16,6 +22,7 @@ const DeleteUserModal = ({ show, onHide, user, onDeleteSuccess }) => {
       setIsDeleting(false);
     }
   };
+
   if (!user) return null;
   return (
     <Modal show={show} onHide={onHide} centered>
@@ -47,4 +54,5 @@ const DeleteUserModal = ({ show, onHide, user, onDeleteSuccess }) => {
     </Modal>
   );
 };
+
 export default DeleteUserModal;

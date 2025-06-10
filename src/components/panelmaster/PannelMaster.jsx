@@ -12,9 +12,10 @@ import { pannelMasterColumns } from '@globals/g-components/modules/tables/Advanc
 import UserModal from '@globals/g-components/modals/pannel-modals/UserModal';
 import DeleteUserModal from '@globals/g-components/modals/pannel-modals/DeleteUserModal';
 import { usePannelUsers } from '@globals/g-store/hooks/UsePannelUsers';
-import { AddPannelUserMaster } from '@globals/g-store/Service/panelUserService';
+import { funcAddPannelUserMaster } from '@globals/g-store/slice/pannel/adduserpanelslice';
 import { funcUpdatePannelUserMaster } from '@globals/g-store/slice/pannel/updatepaneluserslice';
 import { getPermissionByMenuPageName } from '@globals/g-store/hooks/FuncMenuPermision';
+import { useDispatch } from 'react-redux';
 const PannelMaster = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [pageIndex, setPageIndex] = useState(0);
@@ -27,6 +28,7 @@ const PannelMaster = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const debouncedSearchTerm = useDebounce(searchTerm, 100);
   const { users, total, error, refresh } = usePannelUsers();
+  const dispatch = useDispatch();
   // let permisiondata = null;
   // try {
   //   const rawData = localStorage.getItem('panelMenuPermissions');
@@ -35,6 +37,7 @@ const PannelMaster = () => {
   //   console.error('Error parsing panelMenuPermissions:', error);
   // }
   const pagePermission = getPermissionByMenuPageName('panelusermaster');
+  console.log('Passing data of Page Permission Create:', pagePermission);
   let ShowCreate =
     pagePermission && pagePermission.bitCreate === 1 ? 'visible' : 'hidden';
   useEffect(() => {
@@ -58,27 +61,29 @@ const PannelMaster = () => {
     setSelectedUser(user);
     setDeleteModalVisible(true);
   }, []);
-  const handleUserSubmit = userData => {
+  const handleUserSubmit = async userData => {
     setIsSubmitting(true);
     try {
       if (modalMode === 'add') {
-        const response = AddPannelUserMaster({
-          UserDisplayName: userData.strPannelUserDisplayName || '',
-          UserEmail: userData.strPannelUserEmail || '',
-          UserPassword: userData.strPannelUserPassword || '',
-          UserStatus: userData.bitPannelUserStatus || true
-        });
-
+        const response = await dispatch(
+          funcAddPannelUserMaster({
+            UserDisplayName: userData.strPannelUserDisplayName || '',
+            UserEmail: userData.strPannelUserEmail || '',
+            UserPassword: userData.strPannelUserPassword || '',
+            UserStatus: userData.bitPannelUserStatus || true
+          })
+        ).unwrap();
+        console.log('Rushil Add:', response);
         refresh(pageIndex + 1, pageSize, searchTerm);
         toast.success('User created successfully');
       } else if (modalMode === 'edit' && selectedUser) {
-        const response = funcUpdatePannelUserMaster({
+        const response = await funcUpdatePannelUserMaster({
           UserID: selectedUser.intPannelUserID.toString(),
           UserDisplayName: userData.strPannelUserDisplayName || '',
           UserEmail: userData.strPannelUserEmail || '',
           UserStatus: userData.bitPannelUserStatus || false
         });
-
+        console.log('Rushil Update:', response);
         refresh(pageIndex + 1, pageSize, searchTerm);
         toast.success('User updated successfully');
       }

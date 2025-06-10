@@ -3,6 +3,7 @@ export function getPermissionByMenuPageName(menuPageName) {
     const panelMenuDataRaw = localStorage.getItem('panelMenuData');
     if (!panelMenuDataRaw || panelMenuDataRaw === 'undefined') return null;
     const panelMenuData = JSON.parse(panelMenuDataRaw);
+    console.log('getting Panel Menu Data:', panelMenuData);
 
     // Log all available menu pages for debugging
     const availablePages = panelMenuData.data.map(item => item.strMunuPage);

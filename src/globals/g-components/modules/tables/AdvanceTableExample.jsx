@@ -1101,6 +1101,7 @@ const SearchExample = () => {
 // }
 
 const pagePermission = getPermissionByMenuPageName('panelusermaster');
+console.log('Passing data of Page Permission Edit, delete:', pagePermission);
 
 const ShowDelete =
   pagePermission && pagePermission.bitDelete === 1 ? 'visible' : 'hidden';

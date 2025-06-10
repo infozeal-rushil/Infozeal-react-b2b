@@ -17,6 +17,7 @@ export const usePannelUsers = () => {
     if (!isAuthenticated) return;
     const token = localStorage.getItem('authToken');
     if (!token) return;
+    console.log('Rushil Get:');
     dispatch(
       funcGetPannelUserMasterList({
         pageNo,
