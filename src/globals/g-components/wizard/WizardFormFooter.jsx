@@ -28,24 +28,18 @@ const WizardFormFooter = ({
       >
         Previous
       </Button>
-      <Button
-        variant="primary"
-        className={classNames('px-6', {
-          'ms-auto': !hidePrevBtn
-        })}
-        endIcon={<FontAwesomeIcon icon={faChevronRight} className="fs-10" />}
-        onClick={() => {
-          if (getCanNextPage) {
-            goToStep(selectedStep + 1);
-          } else {
-            if (handleSubmit) {
-              handleSubmit();
-            }
-          }
-        }}
-      >
-        {nextBtnLabel}
-      </Button>
+      {getCanNextPage && (
+        <Button
+          variant="primary"
+          className={classNames('px-6', {
+            'ms-auto': !hidePrevBtn
+          })}
+          endIcon={<FontAwesomeIcon icon={faChevronRight} className="fs-10" />}
+          onClick={() => goToStep(selectedStep + 1)}
+        >
+          {nextBtnLabel}
+        </Button>
+      )}
     </div>
   );
 };
