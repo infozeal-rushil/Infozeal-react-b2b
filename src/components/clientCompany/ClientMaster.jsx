@@ -12,12 +12,20 @@ import { toast } from 'react-toastify';
 import { funcGetClientConfigureList } from '@globals/g-store/slice/ClientCompanyMaster/getClientConfigureListSlice';
 import { useNavigate } from 'react-router-dom';
 import ClientCompanyMaster from '@components/clientCompany/clientCompanyMaster';
+import { funcGetClientMasterByID } from '@globals/g-store/slice/ClientCompanyMaster/getClientMasterByIDSlice';
+import { funcUpdateClientMaster } from '@globals/g-store/slice/ClientCompanyMaster/updateClientMasterSlice';
 
 const ClientMaster = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { clients, total, loading, error } = useSelector(
     state => state.clientConfigureList
+  );
+  const { client: fetchedClient, loading: loadingClient } = useSelector(
+    state => state.clientMasterByID
+  );
+  const { loading: updatingClient } = useSelector(
+    state => state.updateClientMaster
   );
 
   const [modalShow, setModalShow] = useState(false);
@@ -45,19 +53,43 @@ const ClientMaster = () => {
   };
 
   const handleEditClient = client => {
+    dispatch(funcGetClientMasterByID(client.intClientID));
+    setSelectedClient(client); // <-- Save the original client with ID
     setModalMode('edit');
-    setSelectedClient(client);
     setModalShow(true);
   };
 
-  const handleClientSubmit = clientData => {
-    // You can dispatch add/update actions here as needed
-    toast.success(
-      modalMode === 'add'
-        ? 'Client added (implement save logic)'
-        : 'Client updated (implement update logic)'
-    );
-    setModalShow(false);
+  const handleClientSubmit = async clientData => {
+    console.log('Submitting clientData:', clientData);
+    if (modalMode === 'edit') {
+      try {
+        await dispatch(
+          funcUpdateClientMaster({
+            ClientID: clientData.ClientID,
+            ClientDisplayName: clientData.ClientDisplayName,
+            ClientCity: clientData.ClientCity,
+            ClientMasterEmail: clientData.ClientMasterEmail,
+            ClientMobile: clientData.ClientMobile,
+            ClientPhone: clientData.ClientPhone,
+            ClientStatus: clientData.ClientStatus ? 'True' : 'False'
+          })
+        ).unwrap();
+        toast.success('Client updated successfully');
+        setModalShow(false);
+        dispatch(
+          funcGetClientConfigureList({
+            pageNo: pageIndex + 1,
+            rowsPerPage: pageSize,
+            searchTerm: '',
+            searchTermByCol: '',
+            filterStatusActive: '',
+            shortByCol: ''
+          })
+        );
+      } catch (err) {
+        toast.error('Failed to update client');
+      }
+    }
   };
 
   const columns = useMemo(
@@ -109,10 +141,17 @@ const ClientMaster = () => {
       <ClientModal
         show={modalShow}
         onHide={() => setModalShow(false)}
-        client={selectedClient}
+        client={
+          modalMode === 'edit'
+            ? {
+                ...(fetchedClient || {}),
+                ClientID: selectedClient?.intClientID
+              }
+            : null
+        }
         onSubmit={handleClientSubmit}
         mode={modalMode}
-        isLoading={false}
+        isLoading={updatingClient || loadingClient}
       />
     </>
   );

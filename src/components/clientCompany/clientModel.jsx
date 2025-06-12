@@ -1,32 +1,49 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
-const ClientModal = ({ show, onHide, onSubmit, client, mode, isLoading }) => {
-  const [formData, setFormData] = useState({
+const ClientModal = ({ show, onHide, client, mode, isLoading, onSubmit }) => {
+  const [form, setForm] = useState({
     ClientDisplayName: '',
-    ClientEmail: '',
-    ClientCity: ''
+    ClientMasterEmail: '',
+    ClientMobile: '',
+    ClientPhone: '',
+    ClientStatus: true
   });
 
   useEffect(() => {
     if (client) {
-      setFormData({
-        ClientDisplayName: client.ClientDisplayName || '',
-        ClientEmail: client.ClientEmail || '',
-        ClientCity: client.ClientCity || ''
+      setForm({
+        ClientID: client.ClientID, // <-- Add this line!
+        ClientDisplayName:
+          client.ClientDisplayName || client.strClientDisplayName || '',
+        ClientMasterEmail:
+          client.ClientMasterEmail || client.strClientMasterEmail || '',
+        ClientMobile: client.ClientMobile || client.strClientMobile || '',
+        ClientPhone: client.ClientPhone || client.strClientPhone || '',
+        ClientStatus:
+          client.ClientStatus !== undefined
+            ? client.ClientStatus
+            : client.bitClientStatus !== undefined
+            ? client.bitClientStatus
+            : true
       });
     }
-  }, [client]);
-
-  if (!show) return null;
+  }, [client, show]);
 
   const handleChange = e => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setForm(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
   };
 
-  const handleSubmit = () => {
-    onSubmit(formData);
+  const handleSubmit = e => {
+    e.preventDefault();
+    console.log('Modal form submit:', form); // <-- Add this line
+    if (onSubmit) onSubmit(form);
   };
+
+  if (!show) return null;
 
   return (
     <div
@@ -35,7 +52,7 @@ const ClientModal = ({ show, onHide, onSubmit, client, mode, isLoading }) => {
       style={{ background: '#00000099' }}
     >
       <div className="modal-dialog">
-        <div className="modal-content">
+        <form className="modal-content" onSubmit={handleSubmit}>
           <div className="modal-header">
             <h5 className="modal-title">
               {mode === 'add' ? 'Add Client' : 'Edit Client'}
@@ -50,38 +67,65 @@ const ClientModal = ({ show, onHide, onSubmit, client, mode, isLoading }) => {
             <input
               className="form-control mb-2"
               name="ClientDisplayName"
-              placeholder="Client Name"
-              value={formData.ClientDisplayName}
+              placeholder="Name"
+              value={form.ClientDisplayName}
               onChange={handleChange}
+              required
             />
             <input
               className="form-control mb-2"
-              name="ClientEmail"
+              name="ClientMasterEmail"
               placeholder="Email"
-              value={formData.ClientEmail}
+              value={form.ClientMasterEmail}
               onChange={handleChange}
+              required
             />
             <input
               className="form-control mb-2"
-              name="ClientCity"
-              placeholder="City"
-              value={formData.ClientCity}
+              name="ClientMobile"
+              placeholder="Mobile No"
+              value={form.ClientMobile}
+              onChange={handleChange}
+              required
+            />
+            <input
+              className="form-control mb-2"
+              name="ClientPhone"
+              placeholder="Phone No"
+              value={form.ClientPhone}
               onChange={handleChange}
             />
+            <div className="form-check mt-2">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                name="ClientStatus"
+                id="ClientStatus"
+                checked={!!form.ClientStatus}
+                onChange={handleChange}
+              />
+              <label className="form-check-label" htmlFor="ClientStatus">
+                Active
+              </label>
+            </div>
           </div>
           <div className="modal-footer">
-            <button className="btn btn-secondary" onClick={onHide}>
-              Cancel
+            <button
+              className="btn btn-secondary"
+              type="button"
+              onClick={onHide}
+            >
+              Close
             </button>
             <button
               className="btn btn-primary"
-              onClick={handleSubmit}
+              type="submit"
               disabled={isLoading}
             >
-              {mode === 'add' ? 'Add' : 'Update'}
+              {isLoading ? 'Saving...' : 'Save'}
             </button>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );

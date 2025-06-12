@@ -1,5 +1,6 @@
 import { post } from '@src/Axois';
 import { get } from '@src/Axois';
+import { put } from '@src/Axois'; // <-- Make sure you have a put method in your Axois.js
 
 export const AddClientConfigure = async payload => {
   try {
@@ -34,4 +35,12 @@ export const getClientConfigureList = async (
     FilterStatusActive: filterStatusActive,
     ShortbyCol: shortByCol
   });
+};
+export const getClientMasterByID = async clientID => {
+  return await get('/ClientUserDBControl/getClientMasterbyID', {
+    ClientID: clientID
+  });
+};
+export const updateClientMaster = async payload => {
+  return await put('/ClientUserDBControl/updateClientMaster', payload);
 };
