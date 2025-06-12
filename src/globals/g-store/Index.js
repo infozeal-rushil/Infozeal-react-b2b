@@ -19,7 +19,8 @@ export const store = configureStore({
     getPanelMenuPermMasterbyid: getPermissionslistReducer,
     updatePermissions: updatePermissionsReducer,
     addClientConfigure: addClientConfigureReducer
-  }
+  },
+  devTools: process.env.NODE_ENV !== 'production'
 });
 export const useAppDispatch = useDispatch;
 export const useAppSelector = useSelector;
