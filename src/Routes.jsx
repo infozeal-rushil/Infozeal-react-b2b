@@ -6,8 +6,9 @@ import SignIn from '@components/login/SignIn';
 import App from '@src/App';
 import Ecommerce from '@components/dashboard/ecommerce';
 import PermissionsMatrix from '@components/PermissionMaster/Pemission';
-// import ClientCompanyMaster from '@components/clientCompany/clientCompanyMaster';
+import ClientCompanyMaster from '@components/clientCompany/clientCompanyMaster';
 import ClientMaster from '@components/clientCompany/ClientMaster';
+
 const dynamicRoutes = [
   {
     path: '/Dashboard',
@@ -24,8 +25,13 @@ const dynamicRoutes = [
   {
     path: '/clientmaster',
     element: <ClientMaster />
+  },
+  {
+    path: '/clientCompanyMaster',
+    element: <ClientCompanyMaster />
   }
 ];
+
 const routes = [
   {
     element: <App />,

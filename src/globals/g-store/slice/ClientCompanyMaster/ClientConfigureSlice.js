@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { AddClientConfigure } from '../../Service/AddClientConfigureService';
+import { AddClientConfigure } from '../../Service/ClientConfigureService';
 
 const initialState = {
   data: null,

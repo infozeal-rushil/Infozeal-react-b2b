@@ -19,7 +19,7 @@ import WizardSideNav from '@globals/g-components/wizard/WizardSideNav';
 import {
   funcAddClientConfigure,
   resetAddClientConfigureState
-} from '@globals/g-store/slice/ClientCompanyMaster/AddClientConfigureSlice';
+} from '@globals/g-store/slice/ClientCompanyMaster/ClientConfigureSlice';
 
 const addCompanyWizardNav = [
   { eventKey: 1, label: 'Company Details' },

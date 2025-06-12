@@ -8,7 +8,8 @@ import permissionReducer from '@globals/g-store/slice/PermissionMaster/menupermi
 import menuPermissionReducer from '@globals/g-store/slice/getmenupermisiondataslice';
 import getPermissionslistReducer from '@globals/g-store/slice/PermissionMaster/getPermissionslistSlice';
 import updatePermissionsReducer from '@globals/g-store/slice/PermissionMaster/UpdatePanelMenuPermMasterSlice';
-import addClientConfigureReducer from '@globals/g-store/slice/ClientCompanyMaster/AddClientConfigureSlice';
+import addClientConfigureReducer from '@globals/g-store/slice/ClientCompanyMaster/ClientConfigureSlice';
+import clientConfigureListReducer from '@globals/g-store/slice/ClientCompanyMaster/getClientConfigureListSlice';
 export const store = configureStore({
   reducer: {
     pannelUsers: pannelUsersReducer,
@@ -18,7 +19,8 @@ export const store = configureStore({
     menuPermissions: menuPermissionReducer,
     getPanelMenuPermMasterbyid: getPermissionslistReducer,
     updatePermissions: updatePermissionsReducer,
-    addClientConfigure: addClientConfigureReducer
+    addClientConfigure: addClientConfigureReducer,
+    clientConfigureList: clientConfigureListReducer
   }
 });
 export const useAppDispatch = useDispatch;

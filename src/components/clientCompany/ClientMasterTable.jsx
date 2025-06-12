@@ -2,24 +2,24 @@ import { FaEdit } from 'react-icons/fa';
 
 export const clientMasterColumns = handleEdit => [
   {
-    accessorKey: 'ClientDisplayName',
+    accessorKey: 'strClientDisplayName',
     header: 'Name',
     cell: ({ row }) => (
-      <span className="fw-bold fs-8 text-secondary">
-        {row.original.ClientDisplayName}
+      <span className="fw-bold fs-8" style={{ color: 'grey' }}>
+        {row.original.strClientDisplayName}
       </span>
     ),
     meta: {
-      cellProps: { className: 'py-3' },
-      headerProps: { style: { width: '30%' } }
+      cellProps: { className: 'py-4' },
+      headerProps: { style: { width: '40%' } }
     }
   },
   {
-    accessorKey: 'ClientCity',
+    accessorKey: 'strClientCity',
     header: 'City',
     cell: ({ row }) => (
-      <span className="fw-bold fs-8 text-secondary">
-        {row.original.ClientCity}
+      <span className="fw-bold fs-8" style={{ color: 'grey' }}>
+        {row.original.strClientCity}
       </span>
     ),
     meta: {
@@ -28,11 +28,11 @@ export const clientMasterColumns = handleEdit => [
     }
   },
   {
-    accessorKey: 'ClientEmail',
+    accessorKey: 'strClientMasterEmail',
     header: 'Email',
     cell: ({ row }) => (
-      <span className="fw-bold fs-8 text-secondary">
-        {row.original.ClientEmail}
+      <span className="fw-bold fs-8" style={{ color: 'grey' }}>
+        {row.original.strClientMasterEmail}
       </span>
     ),
     meta: {
