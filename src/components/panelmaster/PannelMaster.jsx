@@ -161,7 +161,7 @@ const PannelMaster = () => {
                 placeholder="Search..."
                 onChange={handleSearch}
               />
-              {panelUserMasterObj?.bitCreate && (
+              {panelUserMasterObj?.bitCreate === 1 && (
                 <button
                   className="btn btn-primary px-4"
                   onClick={handleAddUser}
