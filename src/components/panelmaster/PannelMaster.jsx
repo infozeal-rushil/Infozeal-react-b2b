@@ -14,9 +14,11 @@ import DeleteUserModal from '@globals/g-components/modals/pannel-modals/DeleteUs
 import { usePannelUsers } from '@globals/g-store/hooks/UsePannelUsers';
 import { funcAddPannelUserMaster } from '@globals/g-store/slice/pannel/adduserpanelslice';
 import { funcUpdatePannelUserMaster } from '@globals/g-store/slice/pannel/updatepaneluserslice';
-import { getPermissionByMenuPageName } from '@globals/g-store/hooks/FuncMenuPermision';
-import { useDispatch } from 'react-redux';
+// import { getPermissionByMenuPageName } from '@globals/g-store/hooks/FuncMenuPermision';
+import { useDispatch, useSelector } from 'react-redux';
 const PannelMaster = () => {
+  const dispatch = useDispatch();
+
   const [searchTerm, setSearchTerm] = useState('');
   const [pageIndex, setPageIndex] = useState(0);
   const pageSize = 10;
@@ -26,41 +28,49 @@ const PannelMaster = () => {
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { userPermissionData = [] } = useSelector(
+    state => state.menuPermissions
+  );
+
   const debouncedSearchTerm = useDebounce(searchTerm, 100);
   const { users, total, error, refresh } = usePannelUsers();
-  const dispatch = useDispatch();
-  // let permisiondata = null;
-  // try {
-  //   const rawData = localStorage.getItem('panelMenuPermissions');
-  //   permisiondata = rawData ? JSON.parse(rawData) : null;
-  // } catch (error) {
-  //   console.error('Error parsing panelMenuPermissions:', error);
-  // }
-  const pagePermission = getPermissionByMenuPageName('panelusermaster');
-  console.log('Passing data of Page Permission Create:', pagePermission);
-  let ShowCreate =
-    pagePermission && pagePermission.bitCreate === 1 ? 'visible' : 'hidden';
+
+  const panelUserMasterObj =
+    userPermissionData.find(
+      user => user.strPanelMenuName === 'Panel User Master'
+    ) || {};
+
+  console.log('User Permission Data:', userPermissionData);
+
+  console.log('Panel User Master Object:', panelUserMasterObj);
+
   useEffect(() => {
     refresh(pageIndex + 1, pageSize, searchTerm);
   }, [pageIndex, pageSize, searchTerm]);
+
   const handleAddUser = useCallback(() => {
     setModalMode('add');
     setSelectedUser(null);
     setModalShow(true);
   }, []);
+
   const handleDeleteSuccess = () => {
     refresh(pageIndex + 1, pageSize, searchTerm);
     toast.success('User deleted successfully');
   };
+
   const handleEditUser = useCallback(user => {
     setModalMode('edit');
     setSelectedUser(user);
     setModalShow(true);
   }, []);
+
   const handleDeleteClick = useCallback(user => {
     setSelectedUser(user);
     setDeleteModalVisible(true);
   }, []);
+
   const handleUserSubmit = async userData => {
     setIsSubmitting(true);
     try {
@@ -95,10 +105,22 @@ const PannelMaster = () => {
       setModalShow(false);
     }
   };
+
   const columns = useMemo(
-    () => pannelMasterColumns(handleEditUser, handleDeleteClick),
-    [handleEditUser, handleDeleteClick]
+    () =>
+      pannelMasterColumns(
+        handleEditUser,
+        handleDeleteClick,
+        panelUserMasterObj
+      ),
+    [handleEditUser, handleDeleteClick, panelUserMasterObj]
   );
+
+  // const columns = pannelMasterColumns(
+  //   handleEditUser,
+  //   handleDeleteClick,
+  //   panelUserMasterObj
+  // );
   const table = useAdvanceTable({
     data: users || [],
     columns: columns,
@@ -119,6 +141,7 @@ const PannelMaster = () => {
   const handlePageChange = page => {
     setPageIndex(page - 1);
   };
+  // console.log('panelUserMasterObj: ', panelUserMasterObj);
   return (
     <>
       <div>
@@ -138,14 +161,16 @@ const PannelMaster = () => {
                 placeholder="Search..."
                 onChange={handleSearch}
               />
-              <button
-                className="btn btn-primary px-4"
-                onClick={handleAddUser}
-                style={{ visibility: ShowCreate }}
-              >
-                <FontAwesomeIcon icon={faPlus} className="me-2" />
-                New user
-              </button>
+              {panelUserMasterObj?.bitCreate && (
+                <button
+                  className="btn btn-primary px-4"
+                  onClick={handleAddUser}
+                  // style={{ visibility: ShowCreate }}
+                >
+                  <FontAwesomeIcon icon={faPlus} className="me-2" />
+                  New user
+                </button>
+              )}
             </div>
           </div>
 

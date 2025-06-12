@@ -4,15 +4,21 @@ import { getPanelMenuPermMasterforlogin } from '../Service/getmenupermisiondataS
 const initialState = {
   loading: false,
   data: null,
-  error: null
+  error: null,
+  userPermissionData: []
 };
 
 export const funcgetPanelMenuPermMasterforlogin = createAsyncThunk(
   'menuPermissions/fetch',
-  async ({ userId }, { rejectWithValue }) => {
+  async ({ userId }, { rejectWithValue, dispatch }) => {
     try {
       const data = await getPanelMenuPermMasterforlogin(userId);
-      localStorage.setItem('panelMenuData', JSON.stringify(data));
+
+      if (data.status === 'success') {
+        dispatch(handleSaveUserPermissionData(data?.data));
+        localStorage.setItem('panelMenuData', JSON.stringify(data));
+      }
+
       return data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -24,6 +30,9 @@ const menuPermissionSlice = createSlice({
   name: 'menuPermissions',
   initialState,
   reducers: {
+    handleSaveUserPermissionData: (state, action) => {
+      state.userPermissionData = action?.payload || [];
+    },
     resetMenuPermissionState: state => {
       state.loading = false;
       state.data = null;
@@ -51,5 +60,6 @@ const menuPermissionSlice = createSlice({
   }
 });
 
-export const { resetMenuPermissionState } = menuPermissionSlice.actions;
+export const { resetMenuPermissionState, handleSaveUserPermissionData } =
+  menuPermissionSlice.actions;
 export default menuPermissionSlice.reducer;

@@ -6,7 +6,7 @@ export function getPermissionByMenuPageName(menuPageName) {
     console.log('getting Panel Menu Data:', panelMenuData);
 
     // Log all available menu pages for debugging
-    const availablePages = panelMenuData.data.map(item => item.strMunuPage);
+    // const availablePages = panelMenuData.data.map(item => item.strMunuPage);
 
     // Case-insensitive match
     const matchedMenu = panelMenuData.data.find(

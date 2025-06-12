@@ -1100,101 +1100,113 @@ const SearchExample = () => {
 //   console.error('Error parsing panelMenuPermissions:', error);
 // }
 
-const pagePermission = getPermissionByMenuPageName('panelusermaster');
-console.log('Passing data of Page Permission Edit, delete:', pagePermission);
+// const pagePermission = getPermissionByMenuPageName('panelusermaster');
+// console.log('pagePermission:', pagePermission);
 
-const ShowDelete =
-  pagePermission && pagePermission.bitDelete === 1 ? 'visible' : 'hidden';
-const ShowUpdate =
-  pagePermission && pagePermission.bitUpdate === 1 ? 'visible' : 'hidden';
-export const pannelMasterColumns = (handleEdit, handleDelete) => [
-  // {
-  //   accessorKey: 'intPannelUserID',
-  //   header: 'User ID',
-  //   cell: ({ getValue }) => getValue(),
-  //   meta: {
-  //     cellProps: { className: 'py-4' },
-  //     headerProps: { style: { width: '20%' } }
-  //   }
-  // },
-  {
-    accessorKey: 'strPannelUserDisplayName',
-    header: 'Display Name',
-    cell: ({ row: { original } }) => (
-      <span className="fw-bold fs-8" style={{ color: 'grey' }}>
-        {original.strPannelUserDisplayName}
-      </span>
-    ),
-    meta: {
-      cellProps: { className: 'py-4' },
-      headerProps: { style: { width: '40%' } }
-    }
-  },
-  {
-    accessorKey: 'strPannelUserEmail',
-    header: 'User Email',
-    cell: ({ row: { original } }) => (
-      <span className="fw-bold fs-8" style={{ color: 'grey' }}>
-        {original.strPannelUserEmail}
-      </span>
-    ),
-    meta: {
-      cellProps: { className: 'py-4' },
-      headerProps: { style: { width: '40%' } }
-    }
-  },
-  {
-    accessorKey: 'bitPannelUserStatus',
-    header: 'Status',
-    cell: ({ getValue }) => {
-      const value = getValue();
-      return (
-        <Badge bg={value ? 'success' : 'secondary'}>
-          {value ? 'Active' : 'Inactive'}
-        </Badge>
-      );
+// const ShowDelete =
+//   pagePermission && pagePermission.bitDelete === 1 ? 'visible' : 'hidden';
+// const ShowUpdate =
+//   pagePermission && pagePermission.bitUpdate === 1 ? 'visible' : 'hidden';
+export const pannelMasterColumns = (
+  handleEdit,
+  handleDelete,
+  panelUserMasterObj
+) => {
+  return [
+    // {
+    //   accessorKey: 'intPannelUserID',
+    //   header: 'User ID',
+    //   cell: ({ getValue }) => getValue(),
+    //   meta: {
+    //     cellProps: { className: 'py-4' },
+    //     headerProps: { style: { width: '20%' } }
+    //   }
+    // },
+    {
+      accessorKey: 'strPannelUserDisplayName',
+      header: 'Display Name',
+      cell: ({ row: { original } }) => (
+        <span className="fw-bold fs-8" style={{ color: 'grey' }}>
+          {original.strPannelUserDisplayName}
+        </span>
+      ),
+      meta: {
+        cellProps: { className: 'py-4' },
+        headerProps: { style: { width: '40%' } }
+      }
     },
-    meta: {
-      cellProps: { className: 'ps-3 py-4' },
-      headerProps: { style: { width: '20%' } }
-    }
-  },
-  {
-    header: 'Action',
-    accessorKey: 'action',
-    cell: ({ row }) => {
-      const user = row.original;
-      // console.log(permisiondata.bitDelete);
-      // console.log(localStorage.getItem('panelMenuPermissions'));
-      // const perm2 = JSON.parse(
-      //   localStorage.getItem('panelMenuPermissions') || 'null'
-      // );
-      // console.log(perm2[7].bitDelete);
-      // console.log('Updste: ', permisiondata?.[6].bitUpdate);
-      // console.log('Delete: ', permisiondata?.[6].bitDelete);
-      return (
-        <div className="d-flex gap-3 justify-content-center">
-          <FaEdit
-            className="text-primary cursor-pointer"
-            onClick={() => handleEdit(user)}
-            title="Edit"
-            style={{ visibility: ShowUpdate }}
-          />
-          <FaTrash
-            className="text-danger cursor-pointer"
-            onClick={() => handleDelete(user)}
-            title="Delete"
-            style={{ visibility: ShowDelete }}
-          />
-        </div>
-      );
+    {
+      accessorKey: 'strPannelUserEmail',
+      header: 'User Email',
+      cell: ({ row: { original } }) => (
+        <span className="fw-bold fs-8" style={{ color: 'grey' }}>
+          {original.strPannelUserEmail}
+        </span>
+      ),
+      meta: {
+        cellProps: { className: 'py-4' },
+        headerProps: { style: { width: '40%' } }
+      }
     },
-    meta: {
-      cellProps: { className: 'py-4' },
-      headerProps: { style: { width: '15%' } }
+    {
+      accessorKey: 'bitPannelUserStatus',
+      header: 'Status',
+      cell: ({ getValue }) => {
+        const value = getValue();
+        return (
+          <Badge bg={value ? 'success' : 'secondary'}>
+            {value ? 'Active' : 'Inactive'}
+          </Badge>
+        );
+      },
+      meta: {
+        cellProps: { className: 'ps-3 py-4' },
+        headerProps: { style: { width: '20%' } }
+      }
+    },
+    {
+      header: 'Action',
+      accessorKey: 'action',
+      cell: ({ row }) => {
+        const user = row.original;
+        // console.log(permisiondata.bitDelete);
+        // console.log(localStorage.getItem('panelMenuPermissions'));
+        // const perm2 = JSON.parse(
+        //   localStorage.getItem('panelMenuPermissions') || 'null'
+        // );
+        // console.log(perm2[7].bitDelete);
+        // console.log('Updste: ', permisiondata?.[6].bitUpdate);
+        // console.log('Delete: ', permisiondata?.[6].bitDelete);
+        return (
+          <div className="d-flex gap-3 justify-content-center">
+            {panelUserMasterObj?.bitUpdate == 1 && (
+              <FaEdit
+                className="text-primary cursor-pointer"
+                onClick={() => handleEdit(user)}
+                title="Edit"
+                // style={{ visibility: ShowUpdate }}
+              />
+            )}
+
+            {panelUserMasterObj?.bitDelete === 1 && (
+              <FaTrash
+                className="text-danger cursor-pointer"
+                onClick={() => handleDelete(user)}
+                title="Delete"
+                // style={{ visibility: ShowDelete }}
+              />
+            )}
+          </div>
+        );
+      },
+      meta: {
+        cellProps: { className: 'py-4' },
+        headerProps: { style: { width: '15%' } }
+      }
     }
-  }
-];
+  ];
+};
+
 export const permissionTableColumns = togglePermission => [
   {
     accessorKey: 'objectName',
