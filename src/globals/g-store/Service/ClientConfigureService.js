@@ -1,10 +1,12 @@
 import { post } from '@src/Axois';
 import { get } from '@src/Axois';
-import { put } from '@src/Axois'; // <-- Make sure you have a put method in your Axois.js
+import { put } from '@src/Axois';
+
+const subURL = '/ClientUserDBControl/';
 
 export const AddClientConfigure = async payload => {
   try {
-    const data = await post('/ClientUserDBControl/AddClientConfigure', payload);
+    const data = await post(`${subURL}AddClientConfigure`, payload);
     if (data.status !== 'success' || !data.data) {
       throw new Error(
         data.responseMessage || 'Failed to add client configuration'
@@ -19,6 +21,7 @@ export const AddClientConfigure = async payload => {
     );
   }
 };
+
 export const getClientConfigureList = async (
   pageNo,
   rowsPerPage,
@@ -27,7 +30,7 @@ export const getClientConfigureList = async (
   filterStatusActive = '',
   shortByCol = ''
 ) => {
-  return await get('/ClientUserDBControl/getClientConfigureList', {
+  return await get(`${subURL}getClientConfigureList`, {
     PageNo: pageNo,
     RowsPerPage: rowsPerPage,
     SearchTerm: searchTerm,
@@ -36,11 +39,11 @@ export const getClientConfigureList = async (
     ShortbyCol: shortByCol
   });
 };
-export const getClientMasterByID = async clientID => {
-  return await get('/ClientUserDBControl/getClientMasterbyID', {
-    ClientID: clientID
-  });
+
+export const getClientMasterByID = async payload => {
+  return await get(`${subURL}getClientMasterbyID`, payload);
 };
+
 export const updateClientMaster = async payload => {
-  return await put('/ClientUserDBControl/updateClientMaster', payload);
+  return await put(`${subURL}updateClientMaster`, payload);
 };

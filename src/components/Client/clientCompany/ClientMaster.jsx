@@ -6,12 +6,12 @@ import AdvanceTable from '@globals/g-components/base/AdvanceTable';
 import AdvanceTableFooter from '@globals/g-components/base/AdvanceTableFooter';
 import AdvanceTableProvider from '@globals/g-providers/AdvanceTableProvider';
 import useAdvanceTable from '@globals/g-hooks/useAdvanceTable';
-import { clientMasterColumns } from '@components/clientCompany/ClientMasterTable';
-import ClientModal from '@components/clientCompany/clientModel';
+import { clientMasterColumns } from '@components/Client/clientCompany/ClientMasterTable';
+import ClientModal from '@components/Client/clientCompany/clientModel';
 import { toast } from 'react-toastify';
 import { funcGetClientConfigureList } from '@globals/g-store/slice/ClientCompanyMaster/getClientConfigureListSlice';
 import { useNavigate } from 'react-router-dom';
-import ClientCompanyMaster from '@components/clientCompany/clientCompanyMaster';
+import ClientCompanyMaster from '@components/Client/clientCompany/clientCompanyMaster';
 import { funcGetClientMasterByID } from '@globals/g-store/slice/ClientCompanyMaster/getClientMasterByIDSlice';
 import { funcUpdateClientMaster } from '@globals/g-store/slice/ClientCompanyMaster/updateClientMasterSlice';
 

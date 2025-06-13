@@ -4,6 +4,8 @@ const ClientModal = ({ show, onHide, client, mode, isLoading, onSubmit }) => {
   const [form, setForm] = useState({
     ClientDisplayName: '',
     ClientMasterEmail: '',
+    ClientCity: '',
+    ClientID: '',
     ClientMobile: '',
     ClientPhone: '',
     ClientStatus: true
@@ -12,9 +14,10 @@ const ClientModal = ({ show, onHide, client, mode, isLoading, onSubmit }) => {
   useEffect(() => {
     if (client) {
       setForm({
-        ClientID: client.ClientID, // <-- Add this line!
+        ClientID: client.ClientID,
         ClientDisplayName:
           client.ClientDisplayName || client.strClientDisplayName || '',
+        ClientCity: client.ClientCity || client.strClientCity || '',
         ClientMasterEmail:
           client.ClientMasterEmail || client.strClientMasterEmail || '',
         ClientMobile: client.ClientMobile || client.strClientMobile || '',
@@ -77,6 +80,14 @@ const ClientModal = ({ show, onHide, client, mode, isLoading, onSubmit }) => {
               name="ClientMasterEmail"
               placeholder="Email"
               value={form.ClientMasterEmail}
+              onChange={handleChange}
+              required
+            />
+            <input
+              className="form-control mb-2"
+              name="ClientCity"
+              placeholder="City"
+              value={form.ClientCity}
               onChange={handleChange}
               required
             />

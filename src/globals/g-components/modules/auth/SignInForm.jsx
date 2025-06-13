@@ -4,7 +4,7 @@ import Button from '@globals/g-components/base/Button';
 import { Col, Form, Row } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { funcGetPannelUserLogin } from '@globals/g-store/slice/loginSlice';
+import { GetPannelUserLogin } from '@globals/g-store/slice/loginSlice';
 import { useAppDispatch, useAppSelector } from '@globals/g-store/Index';
 const SignInForm = ({ layout }) => {
   const [userEmail, setUserEmail] = useState('');
@@ -14,7 +14,7 @@ const SignInForm = ({ layout }) => {
   const { user, loading, error } = useAppSelector(state => state.login);
   const handleLogin = () => {
     dispatch(
-      funcGetPannelUserLogin({
+      GetPannelUserLogin({
         UserEmail: userEmail,
         UserPassword: userPassword
       })

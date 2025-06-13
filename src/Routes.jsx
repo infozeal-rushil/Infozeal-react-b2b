@@ -6,8 +6,9 @@ import SignIn from '@components/login/SignIn';
 import App from '@src/App';
 import Ecommerce from '@components/dashboard/ecommerce';
 import PermissionsMatrix from '@components/PermissionMaster/Pemission';
-import ClientCompanyMaster from '@components/clientCompany/clientCompanyMaster';
-import ClientMaster from '@components/clientCompany/ClientMaster';
+import ClientCompanyMaster from '@components/Client/clientCompany/clientCompanyMaster';
+import ClientMaster from '@components/Client/clientCompany/ClientMaster';
+import BranchMaster from '@components/Client/Branch/branchMaster';
 
 const dynamicRoutes = [
   {
@@ -29,6 +30,10 @@ const dynamicRoutes = [
   {
     path: '/clientCompanyMaster',
     element: <ClientCompanyMaster />
+  },
+  {
+    path: '/clientbranchsetup',
+    element: <BranchMaster />
   }
 ];
 

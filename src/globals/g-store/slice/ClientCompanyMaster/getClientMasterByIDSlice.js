@@ -9,9 +9,9 @@ const initialState = {
 
 export const funcGetClientMasterByID = createAsyncThunk(
   'clientMasterByID/fetch',
-  async (clientID, { rejectWithValue }) => {
+  async (ClientID, { rejectWithValue }) => {
     try {
-      const response = await getClientMasterByID(clientID);
+      const response = await getClientMasterByID({ ClientID });
       // The data is an array, so return the first item or null
       return (response.data && response.data[0]) || null;
     } catch (error) {
