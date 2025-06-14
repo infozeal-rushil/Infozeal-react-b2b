@@ -8,29 +8,30 @@ import AdvanceTableProvider from '@globals/g-providers/AdvanceTableProvider';
 import useAdvanceTable from '@globals/g-hooks/useAdvanceTable';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
+import { funcGetClientBranchMasterAllbyClientID } from '@globals/g-store/slice/Branch/getClientBranchMasterAllbyClientIDSlice';
 import { branchMasterColumns } from './BranchMasterTable'; // Adjust path if needed
 import { useDispatch, useSelector } from 'react-redux';
-// import { funcGetClientMasterAll } from '@globals/g-store/slice/getClientMasterAllSlice';
 
 const BranchMaster = () => {
   const dispatch = useDispatch();
   const {
-    clients = [],
+    branches = [],
     loading = false,
     error = null
-  } = useSelector(state => state.clientMasterAll || {});
+  } = useSelector(state => state.branchMasterAllByClientID || {});
 
-  // useEffect(() => {
-  //   dispatch(funcGetClientMasterAll());
-  // }, [dispatch]);
+  // Fetch branches for a specific client ID (replace 18 with your actual client ID)
+  useEffect(() => {
+    dispatch(funcGetClientBranchMasterAllbyClientID({ ClientID: 18 }));
+  }, [dispatch]);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [pageIndex, setPageIndex] = useState(0);
   const pageSize = 10;
 
   // Use dynamic data from Redux, fallback to empty array if undefined
-  const filteredData = (clients || []).filter(branch =>
-    branch.Name?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredData = (branches || []).filter(branch =>
+    branch.strClientBranchName?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleSearch = e => {
@@ -43,15 +44,15 @@ const BranchMaster = () => {
   };
 
   const handleAddBranch = () => {
-    toast.info('Add Branch button clicked (dummy action)');
+    // Add branch logic here
   };
 
   const handleEditBranch = useCallback(branch => {
-    toast.info(`Edit branch: ${branch.Name}`);
+    // Edit branch logic here
   }, []);
 
   const handleDeleteBranch = useCallback(branch => {
-    toast.info(`Delete branch: ${branch.Name}`);
+    // Delete branch logic here
   }, []);
 
   const columns = useMemo(
@@ -67,6 +68,9 @@ const BranchMaster = () => {
     pageCount: Math.ceil(filteredData.length / pageSize),
     manualPagination: true
   });
+
+  console.log('Redux branches:', branches);
+  console.log('Table data:', filteredData);
 
   return (
     <div>

@@ -2,11 +2,11 @@ import { FaEdit, FaTrash } from 'react-icons/fa';
 
 export const branchMasterColumns = (handleEdit, handleDelete) => [
   {
-    accessorKey: 'Name',
+    accessorKey: 'strClientBranchName',
     header: 'Name',
     cell: ({ row }) => (
       <span className="fw-bold fs-8" style={{ color: 'grey' }}>
-        {row.original.Name}
+        {row.original.strClientBranchName}
       </span>
     ),
     meta: {
@@ -15,11 +15,11 @@ export const branchMasterColumns = (handleEdit, handleDelete) => [
     }
   },
   {
-    accessorKey: 'City',
+    accessorKey: 'strClientBranchCity',
     header: 'City',
     cell: ({ row }) => (
       <span className="fw-bold fs-8" style={{ color: 'grey' }}>
-        {row.original.City}
+        {row.original.strClientBranchCity}
       </span>
     ),
     meta: {
@@ -28,11 +28,11 @@ export const branchMasterColumns = (handleEdit, handleDelete) => [
     }
   },
   {
-    accessorKey: 'Email',
+    accessorKey: 'strClientBranchEmail',
     header: 'Email',
     cell: ({ row }) => (
       <span className="fw-bold fs-8" style={{ color: 'grey' }}>
-        {row.original.Email}
+        {row.original.strClientBranchEmail}
       </span>
     ),
     meta: {
@@ -41,11 +41,11 @@ export const branchMasterColumns = (handleEdit, handleDelete) => [
     }
   },
   {
-    accessorKey: 'ValidityDate',
+    accessorKey: 'strClientBranchValidate',
     header: 'Validity Date',
     cell: ({ row }) => (
       <span className="fw-bold fs-8" style={{ color: 'grey' }}>
-        {row.original.ValidityDate}
+        {row.original.strClientBranchValidate}
       </span>
     ),
     meta: {
