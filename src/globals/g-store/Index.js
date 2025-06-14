@@ -13,6 +13,7 @@ import clientConfigureListReducer from '@globals/g-store/slice/ClientCompanyMast
 import updateClientMasterReducer from '@globals/g-store/slice/ClientCompanyMaster/updateClientMasterSlice';
 import getClientMasterByIDReducer from '@globals/g-store/slice/ClientCompanyMaster/getClientMasterByIDSlice';
 import getClientBranchMasterAllbyClientIDReducer from '@globals/g-store/slice/Branch/getClientBranchMasterAllbyClientIDSlice';
+import getClientMasterAllReducer from '@globals/g-store/slice/Branch/getClientMasterAllSlice';
 export const store = configureStore({
   reducer: {
     pannelUsers: pannelUsersReducer,
@@ -26,7 +27,8 @@ export const store = configureStore({
     clientConfigureList: clientConfigureListReducer,
     updateClientMaster: updateClientMasterReducer,
     clientMasterByID: getClientMasterByIDReducer,
-    branchMasterAllByClientID: getClientBranchMasterAllbyClientIDReducer
+    branchMasterAllByClientID: getClientBranchMasterAllbyClientIDReducer,
+    clientMasterAll: getClientMasterAllReducer
   }
 });
 export const useAppDispatch = useDispatch;
