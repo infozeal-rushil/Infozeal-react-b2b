@@ -9,6 +9,7 @@ import PermissionsMatrix from '@components/PermissionMaster/Pemission';
 import ClientCompanyMaster from '@components/Client/clientCompany/clientCompanyMaster';
 import ClientMaster from '@components/Client/clientCompany/ClientMaster';
 import BranchMaster from '@components/Client/Branch/branchMaster';
+import UserMaster from '@components/Client/User/usermaster';
 
 const dynamicRoutes = [
   {
@@ -34,6 +35,10 @@ const dynamicRoutes = [
   {
     path: '/clientbranchsetup',
     element: <BranchMaster />
+  },
+  {
+    path: '/clientusersetup',
+    element: <UserMaster />
   }
 ];
 

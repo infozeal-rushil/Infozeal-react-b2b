@@ -10,7 +10,12 @@ function getIconByName(name) {
 function buildRouteItem(item) {
   var _a;
   // Log the route name here
-  // console.log('Building route:', item.name || item.strMunuPage, 'Path:', item.path);
+  // console.log(
+  //   'Building route:',
+  //   item.name || item.strMunuPage,
+  //   'Path:',
+  //   item.path
+  // );
   return {
     name: item.name,
     path: item.path,
@@ -81,7 +86,7 @@ export function transformApiResponseToRoutes(apiData) {
   }
 }
 export async function buildDynamicRoutes() {
-  console.group('Building dynamic routes');
+  // console.group('Building dynamic routes');
   try {
     const token = localStorage.getItem('authToken');
     const userId = localStorage.getItem('UserID');

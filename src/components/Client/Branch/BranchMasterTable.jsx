@@ -41,11 +41,11 @@ export const branchMasterColumns = (handleEdit, handleDelete) => [
     }
   },
   {
-    accessorKey: 'strClientBranchValidate',
+    accessorKey: 'dtClientBranchValidate',
     header: 'Validity Date',
     cell: ({ row }) => (
       <span className="fw-bold fs-8" style={{ color: 'grey' }}>
-        {row.original.strClientBranchValidate}
+        {row.original.dtClientBranchValidate}
       </span>
     ),
     meta: {

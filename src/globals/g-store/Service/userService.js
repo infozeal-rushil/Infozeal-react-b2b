@@ -1,0 +1,8 @@
+import { get, put, post } from '@src/Axois';
+
+const subURL = '/ClientUserDBControl/';
+
+export const getClientUserMasterAllbyBranchID = async payload => {
+  // payload should be { ClientBranchID: 7 }
+  return await get(`${subURL}getClientUserMasterAllbyBranchID`, payload);
+};
