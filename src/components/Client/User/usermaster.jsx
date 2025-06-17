@@ -16,58 +16,47 @@ import { useDispatch, useSelector } from 'react-redux';
 import { funcGetClientMasterAll } from '@globals/g-store/slice/Branch/getClientMasterAllSlice';
 import { funcGetClientBranchMasterAllbyClientID } from '@globals/g-store/slice/Branch/getClientBranchMasterAllbyClientIDSlice';
 import { funcGetClientUserMasterAllbyBranchID } from '@globals/g-store/slice/User/getClientUserMasterAllbyBranchIDSlice';
+// import { funcAddClientUserMaster } from '@globals/g-store/slice/User/addClientUserMasterSlice';
+import { funcUpdateClientUserMaster } from '@globals/g-store/slice/User/updateClientUserMasterSlice';
+import { Usercolumns } from '@components/Client/User/userMasterTable';
+import UserModal from '@components/Client/User/userModel';
 
 const UserMaster = () => {
   const dispatch = useDispatch();
   const [searchTerm, setSearchTerm] = useState('');
   const [pageIndex, setPageIndex] = useState(0);
-  const [showModal, setShowModal] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
+  const [modalShow, setModalShow] = useState(false);
+  const [modalMode, setModalMode] = useState('add');
+  const [selectedUser, setSelectedUser] = useState(null);
   const [selectedClient, setSelectedClient] = useState('');
   const [selectedBranch, setSelectedBranch] = useState('');
-  const [formData, setFormData] = useState({
-    ClientUserID: null,
-    ClientBranchID: '',
-    DisplayName: '',
-    Email: '',
-    Password: '',
-    IsAdmin: true,
-    IsActive: true
-  });
 
-  // Redux selectors
   const {
     clients = [],
     loading: clientsLoading,
     error: clientsError
   } = useSelector(state => state.clientMasterAll || {});
-
   const {
     branches = [],
     loading: branchesLoading,
     error: branchesError
   } = useSelector(state => state.branchMasterAllByClientID || {});
-
   const {
     users = [],
     loading: usersLoading,
     error: usersError
   } = useSelector(state => state.userMasterAllByBranchID || {});
-
-  console.log('Users from Redux:', users); // <-- Add this
-
-  const filteredData = users.filter(user =>
-    user.UserName?.toLowerCase().includes(searchTerm.toLowerCase())
+  const { loading: addingUser } = useSelector(
+    state => state.addClientUserMaster || {}
+  );
+  const { loading: updatingUser } = useSelector(
+    state => state.updateClientUserMaster || {}
   );
 
-  console.log('Filtered data for table:', filteredData); // <-- Add this
-
-  // Fetch clients on mount
   useEffect(() => {
     dispatch(funcGetClientMasterAll());
   }, [dispatch]);
 
-  // Set default client when clients load
   useEffect(() => {
     if (clients.length > 0 && !selectedClient) {
       const defaultClientId = clients[0].intClientID;
@@ -78,7 +67,6 @@ const UserMaster = () => {
     }
   }, [clients, selectedClient, dispatch]);
 
-  // Fetch users when branch changes
   useEffect(() => {
     if (selectedBranch) {
       dispatch(
@@ -93,7 +81,7 @@ const UserMaster = () => {
     e => {
       const clientId = e.target.value;
       setSelectedClient(clientId);
-      setSelectedBranch(''); // Reset branch selection
+      setSelectedBranch('');
       if (clientId) {
         dispatch(
           funcGetClientBranchMasterAllbyClientID({ ClientID: Number(clientId) })
@@ -117,6 +105,54 @@ const UserMaster = () => {
     }
   };
 
+  const handleEditUser = useCallback(user => {
+    setSelectedUser(user);
+    setModalMode('edit');
+    setModalShow(true);
+  }, []);
+
+  const handleAddUser = () => {
+    setSelectedUser(null);
+    setModalMode('add');
+    setModalShow(true);
+  };
+
+  const handleUserSubmit = async userData => {
+    try {
+      if (modalMode === 'add') {
+        await dispatch(
+          funcAddClientUserMaster({
+            ClientBranchID: Number(selectedBranch),
+            ClientUserDisplayName: userData.DisplayName,
+            ClientUserEmail: userData.Email,
+            ClientUserPassword: userData.Password,
+            ClientUserAdminAccount: userData.IsAdmin ? 'True' : 'False',
+            ClientUserStatus: userData.IsActive ? 'True' : 'False'
+          })
+        ).unwrap();
+      } else {
+        await dispatch(
+          funcUpdateClientUserMaster({
+            ClientUserID: userData.ClientUserID,
+            ClientBranchID: userData.ClientBranchID,
+            ClientUserDisplayName: userData.DisplayName,
+            ClientUserEmail: userData.Email,
+            ClientUserPassword: userData.Password,
+            ClientUserAdminAccount: userData.IsAdmin ? 'True' : 'False',
+            ClientUserStatus: userData.IsActive ? 'True' : 'False'
+          })
+        ).unwrap();
+      }
+
+      setModalShow(false);
+      handleRefreshUsers();
+    } catch (err) {
+      console.error('Failed to save user:', err);
+    }
+  };
+
+  const columns = useMemo(() => Usercolumns(handleEditUser), [handleEditUser]);
+
   const filteredUsers = useMemo(() => {
     return users.filter(
       user =>
@@ -129,48 +165,6 @@ const UserMaster = () => {
     );
   }, [users, searchTerm]);
 
-  const columns = useMemo(
-    () => [
-      {
-        header: 'Display Name',
-        accessorKey: 'strClientUserDisplayName',
-        cell: ({ getValue }) => getValue() || 'N/A'
-      },
-      {
-        header: 'Email',
-        accessorKey: 'strClientUserEmail',
-        cell: ({ getValue }) => getValue() || 'N/A'
-      },
-      {
-        header: 'Password',
-        accessorKey: 'strClientUserPassword',
-        cell: ({ getValue }) => '••••••••' // Show dots instead of actual password
-      },
-      {
-        header: 'Is Admin',
-        accessorKey: 'bitClientUserAdminAccount',
-        cell: ({ getValue }) => (getValue() ? 'Yes' : 'No')
-      },
-      {
-        header: 'Is Active',
-        accessorKey: 'bitClientUserStatus',
-        cell: ({ getValue }) => (getValue() ? 'Active' : 'Inactive')
-      },
-      {
-        header: 'Actions',
-        cell: ({ row }) => (
-          <button
-            className="btn btn-sm btn-outline-primary"
-            onClick={() => openEditModal(row.original)}
-          >
-            Edit
-          </button>
-        )
-      }
-    ],
-    []
-  );
-
   const table = useAdvanceTable({
     data: filteredUsers,
     columns,
@@ -179,34 +173,6 @@ const UserMaster = () => {
     pageCount: Math.ceil(filteredUsers.length / 10),
     manualPagination: true
   });
-
-  const openAddModal = () => {
-    setIsEditMode(false);
-    setFormData({
-      ClientUserID: null,
-      ClientBranchID: selectedBranch,
-      DisplayName: '',
-      Email: '',
-      Password: '',
-      IsAdmin: true,
-      IsActive: true
-    });
-    setShowModal(true);
-  };
-
-  const openEditModal = user => {
-    setIsEditMode(true);
-    setFormData({
-      ClientUserID: user.intClientUserID,
-      ClientBranchID: user.intClientBranchID,
-      DisplayName: user.strClientUserDisplayName,
-      Email: user.strClientUserEmail,
-      Password: user.strClientUserPassword,
-      IsAdmin: user.bitClientUserAdminAccount,
-      IsActive: user.bitClientUserStatus
-    });
-    setShowModal(true);
-  };
 
   return (
     <div>
@@ -231,7 +197,7 @@ const UserMaster = () => {
             />
             <button
               className="btn btn-primary px-4"
-              onClick={openAddModal}
+              onClick={handleAddUser}
               disabled={!selectedBranch}
             >
               <FontAwesomeIcon icon={faPlus} className="me-2" />
@@ -240,7 +206,6 @@ const UserMaster = () => {
           </div>
         </div>
 
-        {/* Client and Branch Selection */}
         <div className="d-flex gap-3 align-items-end mb-4">
           <Form.Group controlId="clientSelect" className="mb-0">
             <Form.Label>Select Client</Form.Label>
@@ -312,7 +277,6 @@ const UserMaster = () => {
           </Form.Group>
         </div>
 
-        {/* Error Messages */}
         {branchesError && (
           <div className="alert alert-danger mb-3">
             Error loading branches: {branchesError}
@@ -324,7 +288,6 @@ const UserMaster = () => {
           </div>
         )}
 
-        {/* Users Table */}
         {selectedBranch ? (
           <>
             <div className="d-flex justify-content-end mb-2">
@@ -368,122 +331,16 @@ const UserMaster = () => {
         )}
       </AdvanceTableProvider>
 
-      {/* Add/Edit User Modal */}
-      <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
-        <Modal.Header closeButton>
-          <Modal.Title>{isEditMode ? 'Edit User' : 'Add User'}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <div className="row">
-              <div className="col-md-6">
-                <Form.Group className="mb-3">
-                  <Form.Label>Display Name*</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={formData.DisplayName}
-                    onChange={e =>
-                      setFormData({ ...formData, DisplayName: e.target.value })
-                    }
-                    required
-                  />
-                </Form.Group>
-              </div>
-              <div className="col-md-6">
-                <Form.Group className="mb-3">
-                  <Form.Label>Email*</Form.Label>
-                  <Form.Control
-                    type="email"
-                    value={formData.Email}
-                    onChange={e =>
-                      setFormData({ ...formData, Email: e.target.value })
-                    }
-                    required
-                  />
-                </Form.Group>
-              </div>
-            </div>
-
-            <div className="row">
-              <div className="col-md-6">
-                <Form.Group className="mb-3">
-                  <Form.Label>Password*</Form.Label>
-                  <Form.Control
-                    type="password"
-                    value={formData.Password}
-                    onChange={e =>
-                      setFormData({ ...formData, Password: e.target.value })
-                    }
-                    required
-                  />
-                </Form.Group>
-              </div>
-              <div className="col-md-6">
-                <Form.Group className="mb-3">
-                  <Form.Label>Branch</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={
-                      branches.find(
-                        b => b.intClientBranchID === Number(selectedBranch)
-                      )?.strClientBranchName || ''
-                    }
-                    readOnly
-                  />
-                </Form.Group>
-              </div>
-            </div>
-
-            <div className="row">
-              <div className="col-md-6">
-                <Form.Group className="mb-3">
-                  <Form.Label>Admin Privileges</Form.Label>
-                  <Form.Check
-                    type="switch"
-                    id="admin-switch"
-                    label="Is Admin User"
-                    checked={formData.IsAdmin}
-                    onChange={e =>
-                      setFormData({ ...formData, IsAdmin: e.target.checked })
-                    }
-                  />
-                </Form.Group>
-              </div>
-              <div className="col-md-6">
-                <Form.Group className="mb-3">
-                  <Form.Label>Account Status</Form.Label>
-                  <Form.Check
-                    type="switch"
-                    id="status-switch"
-                    label="Active User"
-                    checked={formData.IsActive}
-                    onChange={e =>
-                      setFormData({ ...formData, IsActive: e.target.checked })
-                    }
-                  />
-                </Form.Group>
-              </div>
-            </div>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <button
-            className="btn btn-secondary"
-            onClick={() => setShowModal(false)}
-          >
-            Cancel
-          </button>
-          <button
-            className="btn btn-primary"
-            onClick={() => {
-              // TODO: Implement save logic
-              setShowModal(false);
-            }}
-          >
-            {isEditMode ? 'Update' : 'Add'}
-          </button>
-        </Modal.Footer>
-      </Modal>
+      <UserModal
+        show={modalShow}
+        onHide={() => setModalShow(false)}
+        user={selectedUser}
+        mode={modalMode}
+        isLoading={addingUser || updatingUser}
+        onSubmit={handleUserSubmit}
+        branches={branches}
+        selectedBranch={selectedBranch}
+      />
     </div>
   );
 };
