@@ -11,13 +11,14 @@ import AdvanceTableFooter from '@globals/g-components/base/AdvanceTableFooter';
 import AdvanceTableProvider from '@globals/g-providers/AdvanceTableProvider';
 import useAdvanceTable from '@globals/g-hooks/useAdvanceTable';
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
-import { Form, Modal, Button } from 'react-bootstrap';
+import { Form, Modal, Button, Alert } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { funcGetClientMasterAll } from '@globals/g-store/slice/Branch/getClientMasterAllSlice';
 import { funcGetClientBranchMasterAllbyClientID } from '@globals/g-store/slice/Branch/getClientBranchMasterAllbyClientIDSlice';
 import { funcGetClientUserMasterAllbyBranchID } from '@globals/g-store/slice/User/getClientUserMasterAllbyBranchIDSlice';
 import { funcAddClientUserMaster } from '@globals/g-store/slice/User/addClientUserMasterSlice';
 import { funcUpdateClientUserMaster } from '@globals/g-store/slice/User/updateClientUserMasterSlice';
+import { funcDeleteClientUserMaster } from '@globals/g-store/slice/User/deleteClientUserMasterSlice';
 import { Usercolumns } from '@components/Client/User/userMasterTable';
 import UserModal from '@components/Client/User/userModel';
 
@@ -30,6 +31,8 @@ const UserMaster = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedClient, setSelectedClient] = useState('');
   const [selectedBranch, setSelectedBranch] = useState('');
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
   const {
     clients = [],
@@ -51,6 +54,9 @@ const UserMaster = () => {
   );
   const { loading: updatingUser } = useSelector(
     state => state.updateClientUserMaster || {}
+  );
+  const { loading: deletingUser } = useSelector(
+    state => state.deleteClientUserMaster || {}
   );
 
   useEffect(() => {
@@ -111,6 +117,25 @@ const UserMaster = () => {
     setModalShow(true);
   }, []);
 
+  const handleDeleteUser = useCallback(
+    async user => {
+      try {
+        await dispatch(
+          funcDeleteClientUserMaster({ ClientUserID: user.intClientUserID })
+        ).unwrap();
+        setSuccess(
+          `User ${user.strClientUserDisplayName} deleted successfully`
+        );
+        setTimeout(() => setSuccess(null), 3000);
+        handleRefreshUsers();
+      } catch (err) {
+        setError(`Failed to delete user: ${err.message}`);
+        setTimeout(() => setError(null), 3000);
+      }
+    },
+    [dispatch, handleRefreshUsers]
+  );
+
   const handleAddUser = () => {
     setSelectedUser(null);
     setModalMode('add');
@@ -118,28 +143,19 @@ const UserMaster = () => {
   };
 
   const handleUserSubmit = async userData => {
-    console.log('handleUserSubmit called with:', userData);
     try {
       if (modalMode === 'add') {
-        console.log('Dispatching add action with payload:', {
-          ClientBranchID: Number(selectedBranch),
-          ClientUserDisplayName: userData.DisplayName,
-          ClientUserEmail: userData.Email,
-          ClientUserPassword: userData.Password,
-          ClientUserAdminAccount: userData.IsAdmin ? 'True' : 'False',
-          ClientUserStatus: userData.IsActive ? 'True' : 'False'
-        });
-
         await dispatch(
           funcAddClientUserMaster({
             ClientBranchID: Number(selectedBranch),
             ClientUserDisplayName: userData.DisplayName,
             ClientUserEmail: userData.Email,
             ClientUserPassword: userData.Password,
-            ClientUserAdminAccount: userData.IsAdmin ? 'True' : 'False',
-            ClientUserStatus: userData.IsActive ? 'True' : 'False'
+            ClientUserAdminAccount: userData.IsAdmin,
+            ClientUserStatus: userData.IsActive
           })
         ).unwrap();
+        setSuccess('User added successfully');
       } else {
         await dispatch(
           funcUpdateClientUserMaster({
@@ -148,20 +164,26 @@ const UserMaster = () => {
             ClientUserDisplayName: userData.DisplayName,
             ClientUserEmail: userData.Email,
             ClientUserPassword: userData.Password,
-            ClientUserAdminAccount: userData.IsAdmin ? 'True' : 'False',
-            ClientUserStatus: userData.IsActive ? 'True' : 'False'
+            ClientUserAdminAccount: userData.IsAdmin,
+            ClientUserStatus: userData.IsActive
           })
         ).unwrap();
+        setSuccess('User updated successfully');
       }
 
+      setTimeout(() => setSuccess(null), 3000);
       setModalShow(false);
       handleRefreshUsers();
     } catch (err) {
-      console.error('Failed to save user:', err);
+      setError(`Failed to save user: ${err.message}`);
+      setTimeout(() => setError(null), 3000);
     }
   };
 
-  const columns = useMemo(() => Usercolumns(handleEditUser), [handleEditUser]);
+  const columns = useMemo(
+    () => Usercolumns(handleEditUser, handleDeleteUser),
+    [handleEditUser, handleDeleteUser]
+  );
 
   const filteredUsers = useMemo(() => {
     return users.filter(
@@ -208,13 +230,24 @@ const UserMaster = () => {
             <button
               className="btn btn-primary px-4"
               onClick={handleAddUser}
-              disabled={!selectedBranch}
+              disabled={!selectedBranch || usersLoading}
             >
               <FontAwesomeIcon icon={faPlus} className="me-2" />
               New User
             </button>
           </div>
         </div>
+
+        {error && (
+          <Alert variant="danger" onClose={() => setError(null)} dismissible>
+            {error}
+          </Alert>
+        )}
+        {success && (
+          <Alert variant="success" onClose={() => setSuccess(null)} dismissible>
+            {success}
+          </Alert>
+        )}
 
         <div className="d-flex gap-3 align-items-end mb-4">
           <Form.Group controlId="clientSelect" className="mb-0">
@@ -286,17 +319,6 @@ const UserMaster = () => {
             </Form.Select>
           </Form.Group>
         </div>
-
-        {branchesError && (
-          <div className="alert alert-danger mb-3">
-            Error loading branches: {branchesError}
-          </div>
-        )}
-        {usersError && (
-          <div className="alert alert-danger mb-3">
-            Error loading users: {usersError}
-          </div>
-        )}
 
         {selectedBranch ? (
           <>

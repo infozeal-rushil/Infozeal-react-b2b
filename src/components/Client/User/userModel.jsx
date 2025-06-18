@@ -21,27 +21,22 @@ const UserModal = ({
     IsActive: true
   });
 
+  const [errors, setErrors] = useState({
+    DisplayName: '',
+    Email: '',
+    Password: ''
+  });
+
   useEffect(() => {
     if (user) {
       setForm({
-        ClientUserID: user.ClientUserID || user.intClientUserID || null,
-        ClientBranchID:
-          user.ClientBranchID || user.intClientBranchID || selectedBranch,
-        DisplayName: user.DisplayName || user.strClientUserDisplayName || '',
-        Email: user.Email || user.strClientUserEmail || '',
-        Password: user.Password || user.strClientUserPassword || '',
-        IsAdmin:
-          user.IsAdmin !== undefined
-            ? user.IsAdmin
-            : user.bitClientUserAdminAccount !== undefined
-            ? user.bitClientUserAdminAccount
-            : true,
-        IsActive:
-          user.IsActive !== undefined
-            ? user.IsActive
-            : user.bitClientUserStatus !== undefined
-            ? user.bitClientUserStatus
-            : true
+        ClientUserID: user.intClientUserID || null,
+        ClientBranchID: user.intClientBranchID || selectedBranch,
+        DisplayName: user.strClientUserDisplayName || '',
+        Email: user.strClientUserEmail || '',
+        Password: '',
+        IsAdmin: user.bitClientUserAdminAccount || false,
+        IsActive: user.bitClientUserStatus !== false
       });
     } else {
       setForm({
@@ -50,10 +45,15 @@ const UserModal = ({
         DisplayName: '',
         Email: '',
         Password: '',
-        IsAdmin: true,
+        IsAdmin: false,
         IsActive: true
       });
     }
+    setErrors({
+      DisplayName: '',
+      Email: '',
+      Password: ''
+    });
   }, [user, show, selectedBranch]);
 
   const handleChange = e => {
@@ -62,11 +62,32 @@ const UserModal = ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
+
+    // Clear error when user types
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {
+      DisplayName: !form.DisplayName ? 'Display Name is required' : '',
+      Email: !form.Email ? 'Email is required' : '',
+      Password: mode === 'add' && !form.Password ? 'Password is required' : ''
+    };
+
+    setErrors(newErrors);
+    return !Object.values(newErrors).some(error => error);
   };
 
   const handleSubmit = e => {
     e.preventDefault();
-    if (onSubmit) onSubmit(form);
+    if (validateForm()) {
+      onSubmit(form);
+    }
   };
 
   if (!show) return null;
@@ -75,18 +96,19 @@ const UserModal = ({
     <div
       className="modal show d-block"
       tabIndex="-1"
-      style={{ background: '#00000099' }}
+      style={{ background: 'rgba(0,0,0,0.5)' }}
     >
       <div className="modal-dialog modal-lg">
         <form className="modal-content" onSubmit={handleSubmit}>
           <div className="modal-header">
             <h5 className="modal-title">
-              {mode === 'add' ? 'Add User' : 'Edit User'}
+              {mode === 'add' ? 'Add New User' : 'Edit User'}
             </h5>
             <button
               type="button"
               className="btn-close"
               onClick={onHide}
+              disabled={isLoading}
             ></button>
           </div>
           <div className="modal-body">
@@ -99,8 +121,11 @@ const UserModal = ({
                     name="DisplayName"
                     value={form.DisplayName}
                     onChange={handleChange}
-                    required
+                    isInvalid={!!errors.DisplayName}
                   />
+                  <Form.Control.Feedback type="invalid">
+                    {errors.DisplayName}
+                  </Form.Control.Feedback>
                 </Form.Group>
               </div>
               <div className="col-md-6">
@@ -111,8 +136,11 @@ const UserModal = ({
                     name="Email"
                     value={form.Email}
                     onChange={handleChange}
-                    required
+                    isInvalid={!!errors.Email}
                   />
+                  <Form.Control.Feedback type="invalid">
+                    {errors.Email}
+                  </Form.Control.Feedback>
                 </Form.Group>
               </div>
             </div>
@@ -120,28 +148,41 @@ const UserModal = ({
             <div className="row">
               <div className="col-md-6">
                 <Form.Group className="mb-3">
-                  <Form.Label>Password*</Form.Label>
+                  <Form.Label>Password{mode === 'add' ? '*' : ''}</Form.Label>
                   <Form.Control
                     type="password"
                     name="Password"
                     value={form.Password}
                     onChange={handleChange}
-                    required={mode === 'add'}
+                    isInvalid={!!errors.Password}
+                    placeholder={
+                      mode === 'edit' ? 'Leave blank to keep current' : ''
+                    }
                   />
+                  <Form.Control.Feedback type="invalid">
+                    {errors.Password}
+                  </Form.Control.Feedback>
                 </Form.Group>
               </div>
               <div className="col-md-6">
                 <Form.Group className="mb-3">
                   <Form.Label>Branch</Form.Label>
                   <Form.Control
-                    type="text"
-                    value={
-                      branches.find(
-                        b => b.intClientBranchID === Number(form.ClientBranchID)
-                      )?.strClientBranchName || ''
-                    }
-                    readOnly
-                  />
+                    as="select"
+                    name="ClientBranchID"
+                    value={form.ClientBranchID}
+                    onChange={handleChange}
+                    disabled
+                  >
+                    {branches.map(branch => (
+                      <option
+                        key={branch.intClientBranchID}
+                        value={branch.intClientBranchID}
+                      >
+                        {branch.strClientBranchName}
+                      </option>
+                    ))}
+                  </Form.Control>
                 </Form.Group>
               </div>
             </div>
@@ -188,6 +229,7 @@ const UserModal = ({
               className="btn btn-secondary"
               type="button"
               onClick={onHide}
+              disabled={isLoading}
             >
               Cancel
             </button>
@@ -196,13 +238,20 @@ const UserModal = ({
               type="submit"
               disabled={isLoading}
             >
-              {isLoading
-                ? mode === 'add'
-                  ? 'Adding...'
-                  : 'Updating...'
-                : mode === 'add'
-                ? 'Add'
-                : 'Update'}
+              {isLoading ? (
+                <>
+                  <span
+                    className="spinner-border spinner-border-sm"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>
+                  {mode === 'add' ? ' Adding...' : ' Updating...'}
+                </>
+              ) : mode === 'add' ? (
+                'Add User'
+              ) : (
+                'Update User'
+              )}
             </button>
           </div>
         </form>

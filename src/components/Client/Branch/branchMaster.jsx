@@ -15,6 +15,7 @@ import { funcUpdateClientBranchMaster } from '@globals/g-store/slice/Branch/upda
 import { branchMasterColumns } from './BranchMasterTable';
 import { useDispatch, useSelector } from 'react-redux';
 import { Form, Modal } from 'react-bootstrap';
+import { funcDeleteClientBranchMaster } from '@globals/g-store/slice/Branch/deleteClientBranchMasterSlice';
 
 function formatDateForInput(dateStr) {
   if (!dateStr) return '';
@@ -154,9 +155,32 @@ const BranchMaster = () => {
     }
   }, [dispatch, formData, selectedClient]);
 
-  const handleDeleteBranch = useCallback(branch => {
-    // Optional delete logic
-  }, []);
+  const handleDeleteBranch = useCallback(
+    async branch => {
+      if (
+        window.confirm(
+          `Are you sure you want to delete branch "${branch.strClientBranchName}"?`
+        )
+      ) {
+        try {
+          await dispatch(
+            funcDeleteClientBranchMaster({
+              ClientBranchID: branch.intClientBranchID
+            })
+          ).unwrap();
+          toast.success('Branch deleted successfully!');
+          dispatch(
+            funcGetClientBranchMasterAllbyClientID({
+              ClientID: Number(selectedClient)
+            })
+          );
+        } catch (error) {
+          toast.error(error?.message || 'Failed to delete branch');
+        }
+      }
+    },
+    [dispatch, selectedClient]
+  );
 
   const openAddModal = () => {
     setIsEditMode(false);

@@ -1,4 +1,4 @@
-import { get, put, post } from '@src/Axois';
+import { get, put, post, del } from '@src/Axois';
 
 const subURL = '/ClientUserDBControl/';
 
@@ -11,4 +11,7 @@ export const updateClientUserMaster = async payload => {
 };
 export const addClientUserMaster = async payload => {
   return await post(`${subURL}addClientUserMaster`, payload);
+};
+export const deleteClientUserMaster = async payload => {
+  return await del(`${subURL}deleteClientUserMaster`, payload);
 };

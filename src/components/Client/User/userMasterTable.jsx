@@ -1,6 +1,6 @@
-import { FaEdit } from 'react-icons/fa';
+import { FaEdit, FaTrash } from 'react-icons/fa';
 
-export const Usercolumns = openEditModal => [
+export const Usercolumns = (openEditModal, onDelete) => [
   {
     header: 'Display Name',
     accessorKey: 'strClientUserDisplayName',
@@ -70,14 +70,32 @@ export const Usercolumns = openEditModal => [
   },
   {
     header: 'Actions',
+    accessorKey: 'action',
     cell: ({ row }) => (
-      <button
-        className="btn btn-sm btn-outline-primary"
-        onClick={() => openEditModal(row.original)}
-        title="Edit User"
-      >
-        <FaEdit className="me-1" />
-      </button>
+      <div className="d-flex justify-content-center gap-2">
+        <button
+          className="btn btn-sm btn-outline-primary"
+          onClick={() => openEditModal(row.original)}
+          title="Edit User"
+        >
+          <FaEdit />
+        </button>
+        <button
+          className="btn btn-sm btn-outline-danger"
+          onClick={() => {
+            if (
+              window.confirm(
+                `Are you sure you want to delete ${row.original.strClientUserDisplayName}?`
+              )
+            ) {
+              onDelete(row.original);
+            }
+          }}
+          title="Delete User"
+        >
+          <FaTrash />
+        </button>
+      </div>
     ),
     meta: {
       cellProps: { className: 'py-3 text-center' },
