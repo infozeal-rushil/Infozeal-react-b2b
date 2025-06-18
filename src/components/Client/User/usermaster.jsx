@@ -16,7 +16,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { funcGetClientMasterAll } from '@globals/g-store/slice/Branch/getClientMasterAllSlice';
 import { funcGetClientBranchMasterAllbyClientID } from '@globals/g-store/slice/Branch/getClientBranchMasterAllbyClientIDSlice';
 import { funcGetClientUserMasterAllbyBranchID } from '@globals/g-store/slice/User/getClientUserMasterAllbyBranchIDSlice';
-// import { funcAddClientUserMaster } from '@globals/g-store/slice/User/addClientUserMasterSlice';
+import { funcAddClientUserMaster } from '@globals/g-store/slice/User/addClientUserMasterSlice';
 import { funcUpdateClientUserMaster } from '@globals/g-store/slice/User/updateClientUserMasterSlice';
 import { Usercolumns } from '@components/Client/User/userMasterTable';
 import UserModal from '@components/Client/User/userModel';
@@ -118,8 +118,18 @@ const UserMaster = () => {
   };
 
   const handleUserSubmit = async userData => {
+    console.log('handleUserSubmit called with:', userData);
     try {
       if (modalMode === 'add') {
+        console.log('Dispatching add action with payload:', {
+          ClientBranchID: Number(selectedBranch),
+          ClientUserDisplayName: userData.DisplayName,
+          ClientUserEmail: userData.Email,
+          ClientUserPassword: userData.Password,
+          ClientUserAdminAccount: userData.IsAdmin ? 'True' : 'False',
+          ClientUserStatus: userData.IsActive ? 'True' : 'False'
+        });
+
         await dispatch(
           funcAddClientUserMaster({
             ClientBranchID: Number(selectedBranch),

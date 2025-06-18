@@ -1,12 +1,12 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { post } from '@src/Axois';
+import { addClientUserMaster } from '@globals/g-store/Service/userService';
 
 export const funcAddClientUserMaster = createAsyncThunk(
   'user/addClientUserMaster',
   async (payload, { rejectWithValue }) => {
     try {
-      const response = await post(`${subURL}addClientUserMaster`, payload);
-      return response?.data;
+      const response = await addClientUserMaster(payload);
+      return response;
     } catch (error) {
       return rejectWithValue(error?.response?.data || error.message);
     }
