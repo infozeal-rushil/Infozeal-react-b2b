@@ -17,34 +17,61 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Form, Modal } from 'react-bootstrap';
 import { funcDeleteClientBranchMaster } from '@globals/g-store/slice/Branch/deleteClientBranchMasterSlice';
 
-function formatDateForInput(dateStr) {
+// function formatDateForInput(dateStr) {
+//   if (!dateStr) return '';
+//   // Handles both "14-Jun-2025" and "14-06-2025"
+//   const months = {
+//     Jan: '01',
+//     Feb: '02',
+//     Mar: '03',
+//     Apr: '04',
+//     May: '05',
+//     Jun: '06',
+//     Jul: '07',
+//     Aug: '08',
+//     Sep: '09',
+//     Oct: '10',
+//     Nov: '11',
+//     Dec: '12'
+//   };
+//   const parts = dateStr.split('-');
+//   if (parts.length === 3) {
+//     const [day, mon, year] = parts;
+//     const month = months[mon] || mon; // handles both "Jun" and "06"
+//     return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+//   }
+//   return '';
+// }
+// Utility function for date formatting
+const formatDateForInput = dateStr => {
   if (!dateStr) return '';
-  // Handles both "14-Jun-2025" and "14-06-2025"
-  const months = {
-    Jan: '01',
-    Feb: '02',
-    Mar: '03',
-    Apr: '04',
-    May: '05',
-    Jun: '06',
-    Jul: '07',
-    Aug: '08',
-    Sep: '09',
-    Oct: '10',
-    Nov: '11',
-    Dec: '12'
-  };
-  const parts = dateStr.split('-');
-  if (parts.length === 3) {
-    const [day, mon, year] = parts;
-    const month = months[mon] || mon; // handles both "Jun" and "06"
-    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+  try {
+    const date = new Date(dateStr);
+    return date.toISOString().split('T')[0];
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return '';
   }
-  return '';
-}
+};
+
+const INITIAL_FORM_DATA = {
+  ClientBranchID: null,
+  ClientID: '',
+  ClientBranchName: '',
+  ClientBranchCity: '',
+  ClientBranchEmail: '',
+  ClientBranchMobile: '',
+  ClientBranchPhone: '',
+  dtClientBranchValidity: '',
+  BranchTag: '',
+  BranchType: 'B2B',
+  ClientBranchStatus: 'True'
+};
 
 const BranchMaster = () => {
   const dispatch = useDispatch();
+
+  // Redux state selectors
   const {
     branches = [],
     loading: branchesLoading,
@@ -56,46 +83,73 @@ const BranchMaster = () => {
     error: clientsError
   } = useSelector(state => state.clientMasterAll || {});
 
+  // Local state
   const [searchTerm, setSearchTerm] = useState('');
   const [pageIndex, setPageIndex] = useState(0);
-  const pageSize = 10;
   const [selectedClient, setSelectedClient] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [formData, setFormData] = useState({
-    ClientBranchID: null,
-    ClientID: '',
-    ClientBranchName: '',
-    ClientBranchCity: '',
-    ClientBranchEmail: '',
-    ClientBranchMobile: '',
-    ClientBranchPhone: '',
-    ClientBranchValidate: '',
-    BranchTag: '',
-    BranchType: 'B2B', // Default value
-    ClientBranchStatus: 'True' // Default value
-  });
+  const [formData, setFormData] = useState(INITIAL_FORM_DATA);
+  const [formErrors, setFormErrors] = useState({});
 
-  useEffect(() => {
-    dispatch(funcGetClientBranchMasterAllbyClientID({ ClientID: 18 }));
-  }, [dispatch]);
+  // Constants
+  const pageSize = 10;
 
+  // Fetch data on mount
   useEffect(() => {
     dispatch(funcGetClientMasterAll());
   }, [dispatch]);
 
-  // Set default selected client to the first client when clients are loaded
+  // Set default client and fetch branches when clients load
   useEffect(() => {
     if (clients.length > 0 && !selectedClient) {
-      setSelectedClient(clients[0].intClientID);
+      const defaultClientId = clients[0]?.intClientID;
+      if (defaultClientId) {
+        setSelectedClient(defaultClientId);
+        dispatch(
+          funcGetClientBranchMasterAllbyClientID({ ClientID: defaultClientId })
+        );
+      }
     }
-  }, [clients, selectedClient]);
+  }, [clients, selectedClient, dispatch]);
 
-  // Safe filtering function
-  const filteredData = (branches || []).filter(branch =>
-    branch.strClientBranchName?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Fetch branches when selected client changes
+  useEffect(() => {
+    if (selectedClient) {
+      dispatch(
+        funcGetClientBranchMasterAllbyClientID({
+          ClientID: Number(selectedClient)
+        })
+      );
+    }
+  }, [selectedClient, dispatch]);
 
+  // Filter branches based on search term
+  const filteredData = useMemo(() => {
+    return branches.filter(branch =>
+      branch.strClientBranchName
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase())
+    );
+  }, [branches, searchTerm]);
+
+  // Validate form
+  const validateForm = () => {
+    const errors = {};
+    if (!formData.ClientBranchName)
+      errors.ClientBranchName = 'Branch name is required';
+    if (!formData.ClientBranchCity)
+      errors.ClientBranchCity = 'City is required';
+    if (!formData.ClientBranchEmail) {
+      errors.ClientBranchEmail = 'Email is required';
+    } else if (!/^\S+@\S+\.\S+$/.test(formData.ClientBranchEmail)) {
+      errors.ClientBranchEmail = 'Email is invalid';
+    }
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  // Handlers
   const handleSearch = e => {
     setSearchTerm(e.target.value);
     setPageIndex(0);
@@ -106,104 +160,86 @@ const BranchMaster = () => {
   };
 
   const handleClientChange = e => {
-    setSelectedClient(e.target.value);
-    if (e.target.value) {
-      dispatch(
-        funcGetClientBranchMasterAllbyClientID({
-          ClientID: Number(e.target.value)
-        })
-      );
-    }
+    const clientId = e.target.value;
+    setSelectedClient(clientId);
   };
 
   const handleAddBranch = async () => {
+    if (!validateForm()) return;
+
     try {
       const payload = {
         ...formData,
         ClientID: Number(selectedClient),
-        dtClientBranchValidate: formData.ClientBranchValidity || null
+        dtClientBranchValidity: formData.dtClientBranchValidity || null
       };
+
       await dispatch(funcAddClientBranchMaster(payload)).unwrap();
       toast.success('Branch added successfully!');
-      dispatch(
-        funcGetClientBranchMasterAllbyClientID({
-          ClientID: Number(selectedClient)
-        })
-      );
+      refreshBranches();
       setShowModal(false);
     } catch (error) {
       toast.error(error?.message || 'Failed to add branch');
     }
   };
 
-  const handleEditBranch = useCallback(async () => {
+  const handleEditBranch = async () => {
+    if (!validateForm()) return;
+
     try {
       const payload = {
         ...formData,
-        dtClientBranchValidate: formData.dtClientBranchValidity || null
+        dtClientBranchValidity: formData.dtClientBranchValidity || null
       };
+
       await dispatch(funcUpdateClientBranchMaster(payload)).unwrap();
       toast.success('Branch updated successfully!');
-      dispatch(
-        funcGetClientBranchMasterAllbyClientID({
-          ClientID: Number(selectedClient)
-        })
-      );
+      refreshBranches();
       setShowModal(false);
     } catch (error) {
       toast.error(error?.message || 'Failed to update branch');
     }
-  }, [dispatch, formData, selectedClient]);
+  };
 
-  const handleDeleteBranch = useCallback(
-    async branch => {
-      if (
-        window.confirm(
-          `Are you sure you want to delete branch "${branch.strClientBranchName}"?`
-        )
-      ) {
-        try {
-          await dispatch(
-            funcDeleteClientBranchMaster({
-              ClientBranchID: branch.intClientBranchID
-            })
-          ).unwrap();
-          toast.success('Branch deleted successfully!');
-          dispatch(
-            funcGetClientBranchMasterAllbyClientID({
-              ClientID: Number(selectedClient)
-            })
-          );
-        } catch (error) {
-          toast.error(error?.message || 'Failed to delete branch');
-        }
+  const handleDeleteBranch = async branch => {
+    if (
+      window.confirm(
+        `Are you sure you want to delete branch "${branch.strClientBranchName}"?`
+      )
+    ) {
+      try {
+        await dispatch(
+          funcDeleteClientBranchMaster({
+            ClientBranchID: branch.intClientBranchID
+          })
+        ).unwrap();
+        toast.success('Branch deleted successfully!');
+        refreshBranches();
+      } catch (error) {
+        toast.error(error?.message || 'Failed to delete branch');
       }
-    },
-    [dispatch, selectedClient]
-  );
+    }
+  };
+
+  const refreshBranches = () => {
+    dispatch(
+      funcGetClientBranchMasterAllbyClientID({
+        ClientID: Number(selectedClient)
+      })
+    );
+  };
 
   const openAddModal = () => {
     setIsEditMode(false);
     setFormData({
-      ClientBranchID: null,
-      ClientID: selectedClient,
-      ClientBranchName: '',
-      ClientBranchCity: '',
-      ClientBranchEmail: '',
-      ClientBranchMobile: '',
-      ClientBranchPhone: '',
-      ClientBranchValidate: '',
-      BranchTag: '',
-      BranchType: 'B2B',
-      ClientBranchStatus: 'True'
+      ...INITIAL_FORM_DATA,
+      ClientID: selectedClient
     });
+    setFormErrors({});
     setShowModal(true);
   };
+
   const openEditModal = branch => {
-    const dateOnly = branch.dtClientBranchValidity
-      ? new Date(branch.dtClientBranchValidity).toISOString().split('T')[0]
-      : '';
-    console.log('API date:', branch.dtClientBranchValidity);
     setIsEditMode(true);
     setFormData({
       ClientBranchID: branch.intClientBranchID,
@@ -213,37 +249,14 @@ const BranchMaster = () => {
       ClientBranchEmail: branch.strClientBranchEmail || '',
       ClientBranchMobile: branch.strClientBranchMobile || '',
       ClientBranchPhone: branch.strClientBranchPhone || '',
-      dtClientBranchValidity:
-        branch.dtClientBranchValidity?.split('T')[0] || '',
+      dtClientBranchValidity: formatDateForInput(branch.dtClientBranchValidity),
       BranchTag: branch.strBranchTag || '',
       BranchType: branch.strBranchType || 'B2B',
       ClientBranchStatus: branch.bitClientBranchStatus ? 'True' : 'False'
     });
+    setFormErrors({});
     setShowModal(true);
   };
-
-  // const openEditModal = branch => {
-  //   const formattedDate = formatDateForInput(branch.dtClientBranchValidate);
-  //   console.log('API date:', branch.dtClientBranchValidate);
-  //   console.log('Formatted for input:', formattedDate);
-
-  //   setIsEditMode(true);
-  //   setFormData({
-  //     ClientBranchID: branch.intClientBranchID,
-  //     ClientID: branch.intClientID,
-  //     ClientBranchName: branch.strClientBranchName || '',
-  //     ClientBranchCity: branch.strClientBranchCity || '',
-  //     ClientBranchEmail: branch.strClientBranchEmail || '',
-  //     ClientBranchMobile: branch.strClientBranchMobile || '',
-  //     ClientBranchPhone: branch.strClientBranchPhone || '',
-  //     ClientBranchValidate: branch.dtClientBranchValidate || '',
-  //     BranchTag: branch.strBranchTag || '',
-  //     BranchType: branch.strBranchType || 'B2B',
-  //     ClientBranchStatus: branch.bitClientBranchStatus ? 'True' : 'False',
-  //     dtClientBranchValidity: formattedDate
-  //   });
-  //   setShowModal(true);
-  // };
 
   const handleModalSubmit = async () => {
     if (isEditMode) {
@@ -253,11 +266,29 @@ const BranchMaster = () => {
     }
   };
 
+  const handleInputChange = e => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+
+    // Clear error when field is edited
+    if (formErrors[name]) {
+      setFormErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
+
+  // Memoized table columns
   const columns = useMemo(
     () => branchMasterColumns(openEditModal, handleDeleteBranch),
     [openEditModal, handleDeleteBranch]
   );
 
+  // Table configuration
   const table = useAdvanceTable({
     data: filteredData,
     columns,
@@ -268,7 +299,7 @@ const BranchMaster = () => {
   });
 
   return (
-    <div>
+    <div className="branch-master-container">
       <PageBreadcrumb items={defaultBreadcrumbItems} />
 
       <AdvanceTableProvider {...table}>
@@ -287,8 +318,13 @@ const BranchMaster = () => {
               placeholder="Search..."
               onChange={handleSearch}
               value={searchTerm}
+              aria-label="Search branches"
             />
-            <button className="btn btn-primary px-4" onClick={openAddModal}>
+            <button
+              className="btn btn-primary px-4"
+              onClick={openAddModal}
+              disabled={!selectedClient}
+            >
               <FontAwesomeIcon icon={faPlus} className="me-2" />
               New Branch
             </button>
@@ -302,19 +338,31 @@ const BranchMaster = () => {
               value={selectedClient}
               onChange={handleClientChange}
               style={{ minWidth: '220px' }}
+              disabled={clientsLoading}
             >
-              {clients.map(client => (
-                <option key={client.intClientID} value={client.intClientID}>
-                  {client.strClientDisplayName || 'Unnamed Client'}
-                </option>
-              ))}
+              {clientsLoading ? (
+                <option>Loading clients...</option>
+              ) : (
+                clients.map(client => (
+                  <option key={client.intClientID} value={client.intClientID}>
+                    {client.strClientDisplayName || 'Unnamed Client'}
+                  </option>
+                ))
+              )}
             </Form.Select>
           </Form.Group>
         </div>
 
-        {branchesLoading && <p>Loading branches...</p>}
+        {branchesLoading && (
+          <div className="text-center py-4">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        )}
+
         {branchesError && (
-          <div className="text-danger">
+          <div className="alert alert-danger">
             Error loading branches: {branchesError}
           </div>
         )}
@@ -343,7 +391,12 @@ const BranchMaster = () => {
       </AdvanceTableProvider>
 
       {/* Add/Edit Modal */}
-      <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
+      <Modal
+        show={showModal}
+        onHide={() => setShowModal(false)}
+        size="lg"
+        centered
+      >
         <Modal.Header closeButton>
           <Modal.Title>{isEditMode ? 'Edit Branch' : 'Add Branch'}</Modal.Title>
         </Modal.Header>
@@ -355,15 +408,15 @@ const BranchMaster = () => {
                   <Form.Label>Branch Name*</Form.Label>
                   <Form.Control
                     type="text"
+                    name="ClientBranchName"
                     value={formData.ClientBranchName}
-                    onChange={e =>
-                      setFormData({
-                        ...formData,
-                        ClientBranchName: e.target.value
-                      })
-                    }
+                    onChange={handleInputChange}
+                    isInvalid={!!formErrors.ClientBranchName}
                     required
                   />
+                  <Form.Control.Feedback type="invalid">
+                    {formErrors.ClientBranchName}
+                  </Form.Control.Feedback>
                 </Form.Group>
               </div>
               <div className="col-md-6">
@@ -371,15 +424,15 @@ const BranchMaster = () => {
                   <Form.Label>City*</Form.Label>
                   <Form.Control
                     type="text"
+                    name="ClientBranchCity"
                     value={formData.ClientBranchCity}
-                    onChange={e =>
-                      setFormData({
-                        ...formData,
-                        ClientBranchCity: e.target.value
-                      })
-                    }
+                    onChange={handleInputChange}
+                    isInvalid={!!formErrors.ClientBranchCity}
                     required
                   />
+                  <Form.Control.Feedback type="invalid">
+                    {formErrors.ClientBranchCity}
+                  </Form.Control.Feedback>
                 </Form.Group>
               </div>
             </div>
@@ -390,15 +443,15 @@ const BranchMaster = () => {
                   <Form.Label>Email*</Form.Label>
                   <Form.Control
                     type="email"
+                    name="ClientBranchEmail"
                     value={formData.ClientBranchEmail}
-                    onChange={e =>
-                      setFormData({
-                        ...formData,
-                        ClientBranchEmail: e.target.value
-                      })
-                    }
+                    onChange={handleInputChange}
+                    isInvalid={!!formErrors.ClientBranchEmail}
                     required
                   />
+                  <Form.Control.Feedback type="invalid">
+                    {formErrors.ClientBranchEmail}
+                  </Form.Control.Feedback>
                 </Form.Group>
               </div>
               <div className="col-md-6">
@@ -406,13 +459,9 @@ const BranchMaster = () => {
                   <Form.Label>Mobile</Form.Label>
                   <Form.Control
                     type="text"
+                    name="ClientBranchMobile"
                     value={formData.ClientBranchMobile}
-                    onChange={e =>
-                      setFormData({
-                        ...formData,
-                        ClientBranchMobile: e.target.value
-                      })
-                    }
+                    onChange={handleInputChange}
                   />
                 </Form.Group>
               </div>
@@ -424,13 +473,9 @@ const BranchMaster = () => {
                   <Form.Label>Phone</Form.Label>
                   <Form.Control
                     type="text"
+                    name="ClientBranchPhone"
                     value={formData.ClientBranchPhone}
-                    onChange={e =>
-                      setFormData({
-                        ...formData,
-                        ClientBranchPhone: e.target.value
-                      })
-                    }
+                    onChange={handleInputChange}
                   />
                 </Form.Group>
               </div>
@@ -441,12 +486,7 @@ const BranchMaster = () => {
                     type="date"
                     name="dtClientBranchValidity"
                     value={formData.dtClientBranchValidity}
-                    onChange={e =>
-                      setFormData({
-                        ...formData,
-                        dtClientBranchValidity: e.target.value
-                      })
-                    }
+                    onChange={handleInputChange}
                   />
                 </Form.Group>
               </div>
@@ -458,13 +498,9 @@ const BranchMaster = () => {
                   <Form.Label>Branch Tag</Form.Label>
                   <Form.Control
                     type="text"
+                    name="BranchTag"
                     value={formData.BranchTag}
-                    onChange={e =>
-                      setFormData({
-                        ...formData,
-                        BranchTag: e.target.value
-                      })
-                    }
+                    onChange={handleInputChange}
                   />
                 </Form.Group>
               </div>
@@ -472,13 +508,9 @@ const BranchMaster = () => {
                 <Form.Group className="mb-3">
                   <Form.Label>Branch Type</Form.Label>
                   <Form.Select
+                    name="BranchType"
                     value={formData.BranchType}
-                    onChange={e =>
-                      setFormData({
-                        ...formData,
-                        BranchType: e.target.value
-                      })
-                    }
+                    onChange={handleInputChange}
                   >
                     <option value="B2B">B2B</option>
                     <option value="B2C">B2C</option>
@@ -491,13 +523,9 @@ const BranchMaster = () => {
             <Form.Group className="mb-3">
               <Form.Label>Status</Form.Label>
               <Form.Select
+                name="ClientBranchStatus"
                 value={formData.ClientBranchStatus}
-                onChange={e =>
-                  setFormData({
-                    ...formData,
-                    ClientBranchStatus: e.target.value
-                  })
-                }
+                onChange={handleInputChange}
               >
                 <option value="True">Active</option>
                 <option value="False">Inactive</option>
@@ -512,13 +540,21 @@ const BranchMaster = () => {
           >
             Cancel
           </button>
-          <button className="btn btn-primary" onClick={handleModalSubmit}>
+          <button
+            className="btn btn-primary"
+            onClick={handleModalSubmit}
+            disabled={Object.keys(formErrors).length > 0}
+          >
             {isEditMode ? 'Update' : 'Add'}
           </button>
         </Modal.Footer>
       </Modal>
     </div>
   );
+};
+
+BranchMaster.propTypes = {
+  // Add any props if needed
 };
 
 export default BranchMaster;

@@ -1,4 +1,3 @@
-// components/Permissionbuilder/routeBuilder.ts
 import { UilChartPie } from '@iconscout/react-unicons';
 import { staticRoutes } from '@src/sitemap';
 import * as Unicons from '@iconscout/react-unicons';
@@ -10,12 +9,12 @@ function getIconByName(name) {
 function buildRouteItem(item) {
   var _a;
   // Log the route name here
-  // console.log(
-  //   'Building route:',
-  //   item.name || item.strMunuPage,
-  //   'Path:',
-  //   item.path
-  // );
+  console.log(
+    'Building route:',
+    item.name || item.strMunuPage,
+    'Path:',
+    item.path
+  );
   return {
     name: item.name,
     path: item.path,

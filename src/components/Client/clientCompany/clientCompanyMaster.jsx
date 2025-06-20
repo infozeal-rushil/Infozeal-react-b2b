@@ -28,7 +28,7 @@ const addCompanyWizardNav = [
 ];
 
 const clientCompanyDefaultFormData = {
-  companyName: '',
+  // companyName: '',
   companyCity: '',
   companyEmail: '',
   mobileNo: '',
@@ -79,7 +79,7 @@ const ClientCompanyMaster = () => {
 
     // Validate required fields before submission
     const requiredFields = [
-      'companyName',
+      // 'companyName',
       'companyEmail',
       'userName',
       'userEmail',
@@ -95,7 +95,7 @@ const ClientCompanyMaster = () => {
     }
 
     const payload = {
-      ClientDisplayName: form.formData.companyName,
+      // ClientDisplayName: form.formData.companyName,
       ClientCity: form.formData.companyCity,
       ClientMasterEmail: form.formData.companyEmail,
       ClientMobile: form.formData.mobileNo,
@@ -156,7 +156,7 @@ const ClientCompanyMaster = () => {
                     <WizardForm step={1}>
                       <h4 className="mt-6 mb-3">Company Information</h4>
                       <Row className="g-3">
-                        <Col md={6}>
+                        {/* <Col md={6}>
                           <FloatingLabel
                             controlId="companyName"
                             label="Name*"
@@ -170,7 +170,7 @@ const ClientCompanyMaster = () => {
                               required
                             />
                           </FloatingLabel>
-                        </Col>
+                        </Col> */}
                         <Col md={6}>
                           <FloatingLabel
                             controlId="companyCity"

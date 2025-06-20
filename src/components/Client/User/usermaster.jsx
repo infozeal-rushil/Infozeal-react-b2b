@@ -11,10 +11,9 @@ import AdvanceTableFooter from '@globals/g-components/base/AdvanceTableFooter';
 import AdvanceTableProvider from '@globals/g-providers/AdvanceTableProvider';
 import useAdvanceTable from '@globals/g-hooks/useAdvanceTable';
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
-import { Form, Modal, Button, Alert } from 'react-bootstrap';
+import { Form, Button, Alert } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { funcGetClientMasterAll } from '@globals/g-store/slice/Branch/getClientMasterAllSlice';
-import { funcGetClientBranchMasterAllbyClientID } from '@globals/g-store/slice/Branch/getClientBranchMasterAllbyClientIDSlice';
 import { funcGetClientUserMasterAllbyBranchID } from '@globals/g-store/slice/User/getClientUserMasterAllbyBranchIDSlice';
 import { funcAddClientUserMaster } from '@globals/g-store/slice/User/addClientUserMasterSlice';
 import { funcUpdateClientUserMaster } from '@globals/g-store/slice/User/updateClientUserMasterSlice';
@@ -30,25 +29,15 @@ const UserMaster = () => {
   const [modalMode, setModalMode] = useState('add');
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedClient, setSelectedClient] = useState('');
-  const [selectedBranch, setSelectedBranch] = useState('');
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
-  const {
-    clients = [],
-    loading: clientsLoading,
-    error: clientsError
-  } = useSelector(state => state.clientMasterAll || {});
-  const {
-    branches = [],
-    loading: branchesLoading,
-    error: branchesError
-  } = useSelector(state => state.branchMasterAllByClientID || {});
-  const {
-    users = [],
-    loading: usersLoading,
-    error: usersError
-  } = useSelector(state => state.userMasterAllByBranchID || {});
+  const { clients = [], loading: clientsLoading } = useSelector(
+    state => state.clientMasterAll || {}
+  );
+  const { users = [], loading: usersLoading } = useSelector(
+    state => state.userMasterAllByBranchID || {}
+  );
   const { loading: addingUser } = useSelector(
     state => state.addClientUserMaster || {}
   );
@@ -68,44 +57,29 @@ const UserMaster = () => {
       const defaultClientId = clients[0].intClientID;
       setSelectedClient(defaultClientId);
       dispatch(
-        funcGetClientBranchMasterAllbyClientID({ ClientID: defaultClientId })
+        funcGetClientUserMasterAllbyBranchID({ ClientID: defaultClientId })
       );
     }
   }, [clients, selectedClient, dispatch]);
-
-  useEffect(() => {
-    if (selectedBranch) {
-      dispatch(
-        funcGetClientUserMasterAllbyBranchID({
-          ClientBranchID: Number(selectedBranch)
-        })
-      );
-    }
-  }, [selectedBranch, dispatch]);
 
   const handleClientChange = useCallback(
     e => {
       const clientId = e.target.value;
       setSelectedClient(clientId);
-      setSelectedBranch('');
       if (clientId) {
         dispatch(
-          funcGetClientBranchMasterAllbyClientID({ ClientID: Number(clientId) })
+          funcGetClientUserMasterAllbyBranchID({ ClientID: Number(clientId) })
         );
       }
     },
     [dispatch]
   );
 
-  const handleBranchChange = e => {
-    setSelectedBranch(e.target.value);
-  };
-
   const handleRefreshUsers = () => {
-    if (selectedBranch) {
+    if (selectedClient) {
       dispatch(
         funcGetClientUserMasterAllbyBranchID({
-          ClientBranchID: Number(selectedBranch)
+          ClientID: Number(selectedClient)
         })
       );
     }
@@ -133,7 +107,7 @@ const UserMaster = () => {
         setTimeout(() => setError(null), 3000);
       }
     },
-    [dispatch, handleRefreshUsers]
+    [dispatch]
   );
 
   const handleAddUser = () => {
@@ -147,7 +121,7 @@ const UserMaster = () => {
       if (modalMode === 'add') {
         await dispatch(
           funcAddClientUserMaster({
-            ClientBranchID: Number(selectedBranch),
+            ClientID: Number(selectedClient),
             ClientUserDisplayName: userData.DisplayName,
             ClientUserEmail: userData.Email,
             ClientUserPassword: userData.Password,
@@ -160,7 +134,7 @@ const UserMaster = () => {
         await dispatch(
           funcUpdateClientUserMaster({
             ClientUserID: userData.ClientUserID,
-            ClientBranchID: userData.ClientBranchID,
+            ClientID: Number(selectedClient),
             ClientUserDisplayName: userData.DisplayName,
             ClientUserEmail: userData.Email,
             ClientUserPassword: userData.Password,
@@ -230,7 +204,7 @@ const UserMaster = () => {
             <button
               className="btn btn-primary px-4"
               onClick={handleAddUser}
-              disabled={!selectedBranch || usersLoading}
+              disabled={!selectedClient || usersLoading}
             >
               <FontAwesomeIcon icon={faPlus} className="me-2" />
               New User
@@ -270,97 +244,37 @@ const UserMaster = () => {
             </Form.Select>
           </Form.Group>
 
-          <Form.Group
-            controlId="branchSelect"
-            className="mb-0 position-relative"
+          <Button
+            variant="link"
+            size="sm"
+            onClick={handleRefreshUsers}
+            disabled={usersLoading}
           >
-            <Form.Label>Select Branch</Form.Label>
-            <Button
-              variant="link"
-              className="position-absolute end-0 top-0 p-0"
-              onClick={() =>
-                selectedClient &&
-                dispatch(
-                  funcGetClientBranchMasterAllbyClientID({
-                    ClientID: Number(selectedClient)
-                  })
-                )
-              }
-              disabled={!selectedClient || branchesLoading}
-            >
-              <FontAwesomeIcon
-                icon={branchesLoading ? faSpinner : faSyncAlt}
-                spin={branchesLoading}
-              />
-            </Button>
-            <Form.Select
-              value={selectedBranch}
-              onChange={handleBranchChange}
-              style={{ minWidth: '220px' }}
-              disabled={branchesLoading || !selectedClient}
-            >
-              {branchesLoading ? (
-                <option>Loading branches...</option>
-              ) : branches.length === 0 ? (
-                <option>No branches available</option>
-              ) : (
-                <>
-                  <option value="">Select branch</option>
-                  {branches.map(branch => (
-                    <option
-                      key={branch.intClientBranchID}
-                      value={branch.intClientBranchID}
-                    >
-                      {branch.strClientBranchName || 'Unnamed Branch'}
-                    </option>
-                  ))}
-                </>
-              )}
-            </Form.Select>
-          </Form.Group>
+            <FontAwesomeIcon
+              icon={usersLoading ? faSpinner : faSyncAlt}
+              spin={usersLoading}
+              className="me-2"
+            />
+            Refresh Users
+          </Button>
         </div>
 
-        {selectedBranch ? (
-          <>
-            <div className="d-flex justify-content-end mb-2">
-              <Button
-                variant="link"
-                size="sm"
-                onClick={handleRefreshUsers}
-                disabled={usersLoading}
-              >
-                <FontAwesomeIcon
-                  icon={usersLoading ? faSpinner : faSyncAlt}
-                  spin={usersLoading}
-                  className="me-2"
-                />
-                Refresh Users
-              </Button>
-            </div>
+        <AdvanceTable
+          tableProps={{
+            size: 'sm',
+            className: 'phoenix-table fs-9 mb-0 border-top border-translucent'
+          }}
+          rowClassName="hover-actions-trigger btn-reveal-trigger position-static"
+        />
 
-            <AdvanceTable
-              tableProps={{
-                size: 'sm',
-                className:
-                  'phoenix-table fs-9 mb-0 border-top border-translucent'
-              }}
-              rowClassName="hover-actions-trigger btn-reveal-trigger position-static"
-            />
-
-            <AdvanceTableFooter
-              navBtn
-              pagination
-              tableInfo="custom-class"
-              showViewAllBtn={false}
-              onPageChange={page => setPageIndex(page - 1)}
-              total={filteredUsers.length}
-            />
-          </>
-        ) : (
-          <div className="alert alert-info">
-            Please select a branch to view users
-          </div>
-        )}
+        <AdvanceTableFooter
+          navBtn
+          pagination
+          tableInfo="custom-class"
+          showViewAllBtn={false}
+          onPageChange={page => setPageIndex(page - 1)}
+          total={filteredUsers.length}
+        />
       </AdvanceTableProvider>
 
       <UserModal
@@ -370,8 +284,8 @@ const UserMaster = () => {
         mode={modalMode}
         isLoading={addingUser || updatingUser}
         onSubmit={handleUserSubmit}
-        branches={branches}
-        selectedBranch={selectedBranch}
+        branches={[]} // no branches needed
+        selectedBranch={null}
       />
     </div>
   );
